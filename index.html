@@ -3,633 +3,536 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HSK 3.1 Level 1 Mastery Suite Dashboard</title>
+    <title>HSK 3.1 Level 1 Mastery Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .table-grid {
+            display: grid;
+            grid-template-columns: minmax(80px, 1fr) minmax(80px, 1fr) minmax(100px, 1fr) minmax(200px, 2.5fr);
+            gap: 1rem;
+        }
+        @media (max-width: 768px) {
+            .table-grid {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+                border-bottom: 2px solid #e5e7eb;
+                padding-bottom: 1rem;
+                margin-bottom: 1rem;
+            }
+            .header-row { display: none; }
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen p-4 md:p-8">
+<body class="bg-slate-50 text-slate-800 p-4 md:p-8">
 
-    <div class="max-w-7xl mx-auto">
-        <header class="text-center mb-8">
-            <h1 class="text-4xl font-extrabold text-gray-900" id="dashboard-title">HSK 3.1 (2026) Level 1 Mastery Suite</h1>
-            <p class="text-lg text-gray-600 mt-3" id="dashboard-subtitle">Select a Batch below to access the full vocabulary list and comprehensive cumulative test.</p>
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-blue-900 mb-2">HSK 3.1 Level 1 Mastery Suite</h1>
+            <p class="text-slate-600">Complete 300 Word Vocabulary & Cumulative Tests</p>
         </header>
 
         <!-- Navigation Tabs -->
-        <nav class="flex flex-wrap justify-center gap-3 mb-8" id="batch-navigation">
-            <button onclick="switchBatch(1)" id="btn-batch-1" class="px-6 py-3 font-bold rounded-lg transition-all duration-150 shadow-sm border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">Batch 1 (1-50)</button>
-            <button onclick="switchBatch(2)" id="btn-batch-2" class="px-6 py-3 font-bold rounded-lg transition-all duration-150 shadow-sm border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">Batch 2 (51-100)</button>
-            <button onclick="switchBatch(3)" id="btn-batch-3" class="px-6 py-3 font-bold rounded-lg transition-all duration-150 shadow-sm border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">Batch 3 (101-150)</button>
-            <button onclick="switchBatch(4)" id="btn-batch-4" class="px-6 py-3 font-bold rounded-lg transition-all duration-150 shadow-sm border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">Batch 4 (151-200)</button>
-            <button onclick="switchBatch(5)" id="btn-batch-5" class="px-6 py-3 font-bold rounded-lg transition-all duration-150 shadow-sm border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">Batch 5 (201-250)</button>
-            <button onclick="switchBatch(6)" id="btn-batch-6" class="px-6 py-3 font-bold rounded-lg transition-all duration-150 shadow-sm border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">Batch 6 (251-300)</button>
-        </nav>
+        <div class="flex flex-wrap justify-center gap-2 mb-8" id="tabContainer">
+            <!-- Tabs injected by JS -->
+        </div>
 
-        <!-- Main Content Area -->
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 mb-12">
-            
-            <!-- Table Header -->
-            <div class="bg-gray-100 border-b border-gray-200">
-                <div class="grid grid-cols-[1.2fr_1.2fr_1.2fr_2.5fr] gap-4 items-center p-5 font-bold text-gray-700 text-base md:text-lg uppercase tracking-wider">
-                    <div>Character</div>
-                    <div>Pinyin</div>
-                    <div>Meaning</div>
-                    <div>Example</div>
-                </div>
+        <!-- Vocabulary Section -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-12">
+            <div class="bg-slate-100 border-b border-slate-200 p-4 table-grid header-row font-bold text-slate-700">
+                <div>Character</div>
+                <div>Pinyin</div>
+                <div>Meaning</div>
+                <div>Example (Tap to Reveal)</div>
             </div>
-
-            <!-- Dynamic Vocabulary List -->
-            <div id="vocab-list" class="divide-y divide-gray-100">
-                <!-- Injected via JS -->
+            <div id="vocabContainer" class="divide-y divide-slate-100 p-4 md:p-0">
+                <!-- Vocab rows injected by JS -->
             </div>
         </div>
 
-        <!-- Dynamic Test Section Container -->
-        <div id="dynamic-test-section" class="p-6 md:p-10 bg-white rounded-2xl shadow-xl border border-gray-200 mt-12 border-t-8 border-blue-600">
-            <!-- Injected via JS -->
+        <!-- Cumulative Test Section -->
+        <div id="testContainer" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
+            <h2 class="text-2xl font-bold text-blue-900 mb-6" id="testTitle">Cumulative Test</h2>
+            <div id="testContent" class="space-y-8">
+                <!-- Test questions generated dynamically -->
+            </div>
         </div>
     </div>
 
-    <script>
-        let currentBatch = 1;
+	<script>
+		// Create an AudioContext that stays alive for the duration of the session
+		const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+		// Resume context on first touch (Required by Chrome/Brave/Android)
+		document.addEventListener('touchstart', function() {
+			if (audioCtx.state === 'suspended') {
+				audioCtx.resume();
+			}
+		}, { once: true });
 
-        const hskData = {
+		function playAudio(text) {
+			const cleanText = text.replace(/\(.*?\)/g, '').trim();
+			// Use a hidden iframe or simple Audio element that is programmatically triggered
+			const audio = new Audio(`https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(cleanText)}&tl=zh-CN&client=tw-ob`);
+        
+				// This must be triggered by the actual tap event
+				audio.play().catch(error => {
+					console.error("Autoplay prevented:", error);
+					// Fallback for extremely strict environments
+					const utterance = new SpeechSynthesisUtterance(cleanText);
+					utterance.lang = 'zh-CN';
+					window.speechSynthesis.speak(utterance);
+				});
+			}
+
+        // Full 300 Word Database (6 Batches x 50 Words)
+        const vocabularyDB = {
             1: [
-                ["爱", "ài", "love", "我爱中国。", "Wǒ ài Zhōngguó. - I love China."],
-                ["八", "bā", "eight", "我们有八个人。", "Wǒmen yǒu bā gè rén. - We have 8 people."],
-                ["爸爸", "bàba", "dad", "爸爸在看书。", "Bàba zài kànshū. - Dad is reading."],
-                ["吧", "ba", "(suggestion)", "我们走吧。", "Wǒmen zǒu ba. - Let's go."],
-                ["白天", "báitiān", "daytime", "我白天学习。", "Wǒ báitiān xuéxí. - I study during the day."],
-                ["百", "bǎi", "hundred", "一百元。", "Yī bǎi yuán. - One hundred yuan."],
-                ["半", "bàn", "half", "半个小时。", "Bàn gè xiǎoshí. - Half an hour."],
-                ["包子", "bāozi", "steamed bun", "我吃包子。", "Wǒ chī bāozi. - I eat steamed buns."],
-                ["杯子", "bēizi", "cup", "杯子在桌上。", "Bēizi zài zhuō shàng. - The cup is on the table."],
-                ["本", "běn", "book(mw)", "一本书。", "Yī běn shū. - One book."],
-                ["边", "biān", "side", "在旁边。", "Zài pángbiān. - On the side."],
-                ["病", "bìng", "illness", "我生病了。", "Wǒ shēngbìng le. - I am sick."],
-                ["不", "bù", "not", "我不吃。", "Wǒ bù chī. - I don't eat."],
-                ["不客气", "bù kèqi", "you're welcome", "谢谢。 - 不客气。", "Xièxie. - Bù kèqi. - Thanks. - You're welcome."],
-                ["不要", "bùyào", "don't want", "不要吃。", "Bùyào chī. - Don't eat."],
-                ["菜", "cài", "dish", "这个菜好吃。", "Zhè ge cài hǎochī. - This dish is tasty."],
-                ["茶", "chá", "tea", "请喝茶。", "Qǐng hē chá. - Please drink tea."],
-                ["唱", "chàng", "to sing", "她在唱歌。", "Tā zài chànggē. - She is singing."],
-                ["超市", "chāoshì", "supermarket", "我去超市。", "Wǒ qù chāoshì. - I go to the supermarket."],
-                ["车", "chē", "car", "这是我的车。", "Zhè shì wǒ de chē. - This is my car."],
-                ["吃", "chī", "to eat", "我们吃饭。", "Wǒmen chī fàn. - We eat a meal."],
-                ["出租车", "chūzūchē", "taxi", "坐出租车。", "Zuò chūzūchē. - Take a taxi."],
-                ["穿", "chuān", "to wear", "穿衣服。", "Chuān yīfu. - Wear clothes."],
-                ["打电话", "dǎ diànhuà", "make call", "我在打电话。", "Wǒ zài dǎ diànhuà. - I am making a call."],
-                ["大", "dà", "big", "这个很大。", "Zhè ge hěn dà. - This is very big."],
-                ["大家", "dàjiā", "everyone", "大家好。", "Dàjiā hǎo. - Hello everyone."],
-                ["大学", "dàxué", "university", "我去大学。", "Wǒ qù dàxué. - I go to university."],
-                ["大学生", "dàxuéshēng", "student", "他是大学生。", "Tā shì dàxuéshēng. - He is a student."],
-                ["到", "dào", "arrive", "到了。", "Dào le. - Arrived."],
-                ["的", "de", "(possessive)", "我的书。", "Wǒ de shū. - My book."],
-                ["第", "dì", "(ordinal)", "第一。", "Dì yī. - The first."],
-                ["弟弟", "dìdi", "younger bro", "我弟弟。", "Wǒ dìdi. - My younger brother."],
-                ["点", "diǎn", "o'clock", "三点。", "Sān diǎn. - 三点。"],
-                ["店", "diàn", "shop", "去商店。", "Qù shāngdiàn. - Go to the store."],
-                ["电话", "diànhuà", "phone", "打电话。", "Dǎ diànhuà. - Make a call."],
-                ["电脑", "diànnǎo", "computer", "看电脑。", "Kàn diànnǎo. - Look at computer."],
-                ["电视", "diànshì", "TV", "看电视。", "Kàn diànshì. - Watch TV."],
-                ["电影", "diànyǐng", "movie", "看电影。", "Kàn diànyǐng. - Watch movie."],
-                ["电影院", "diànyǐngyuàn", "cinema", "去电影院。", "Qù diànyǐngyuàn. - Go to cinema."],
-                ["东西", "dōngxi", "thing", "买东西。", "Mǎi dōngxi. - Buy things."],
-                ["都", "dōu", "all", "我们都去。", "Wǒmen dōu qù. - We all go."],
-                ["读", "dú", "read", "读书。", "Dú shū. - Read book."],
-                ["读书", "dúshū", "read book", "他在读书。", "Tā zài dúshū. - He is reading."],
-                ["对", "duì", "correct", "不对。", "Bù duì. - Not correct."],
-                ["对不起", "duìbuqǐ", "sorry", "对不起。", "Duìbuqǐ. - Sorry."],
-                ["多", "duō", "many", "很多。", "Hěn duō. - Very many."],
-                ["多少", "duōshao", "how many", "多少钱？", "Duōshao qián? - How much money?"],
-                ["儿子", "érzi", "son", "我儿子。", "Wǒ érzi. - My son."],
-                ["二", "èr", "two", "二月。", "Èr yuè. - February."],
-                ["饭", "fàn", "meal", "吃饭。", "Chī fàn. - Eat meal."]
+                ["爱", "ài", "love", "我爱你。(Wǒ ài nǐ. - I love you.)"],
+                ["八", "bā", "eight", "八个人。(Bā ge rén. - Eight people.)"],
+                ["爸爸", "bàba", "dad", "我爸爸在看书。(Wǒ bàba zài kànshū. - My dad is reading.)"],
+                ["杯子", "bēizi", "cup", "这是一个杯子。(Zhè shì yí ge bēizi. - This is a cup.)"],
+                ["北京", "Běijīng", "Beijing", "我去北京。(Wǒ qù Běijīng. - I go to Beijing.)"],
+                ["本", "běn", "measure word for books", "一本书。(Yì běn shū. - One book.)"],
+                ["不客气", "bú kèqi", "you're welcome", "谢谢！不客气。(Xièxie! Bú kèqi. - Thanks! You're welcome.)"],
+                ["不", "bù", "not / no", "我不去。(Wǒ bù qù. - I am not going.)"],
+                ["菜", "cài", "dish / vegetable", "中国菜很好吃。(Zhōngguó cài hěn hǎochī. - Chinese food is delicious.)"],
+                ["茶", "chá", "tea", "请喝茶。(Qǐng hē chá. - Please drink tea.)"],
+                ["吃", "chī", "eat", "吃饭。(Chī fàn. - Eat a meal.)"],
+                ["出租车", "chūzūchē", "taxi", "坐出租车。(Zuò chūzūchē. - Take a taxi.)"],
+                ["打电话", "dǎ diànhuà", "make a phone call", "他在打电话。(Tā zài dǎ diànhuà. - He is making a call.)"],
+                ["大", "dà", "big", "这个苹果很大。(Zhè ge píngguǒ hěn dà. - This apple is very big.)"],
+                ["的", "de", "possessive particle", "我的书。(Wǒ de shū. - My book.)"],
+                ["点", "diǎn", "o'clock", "现在几点？(Xiànzài jǐ diǎn? - What time is it now?)"],
+                ["电脑", "diànnǎo", "computer", "买电脑。(Mǎi diànnǎo. - Buy a computer.)"],
+                ["电视", "diànshì", "television", "看电视。(Kàn diànshì. - Watch TV.)"],
+                ["电影", "diànyǐng", "movie", "看电影。(Kàn diànyǐng. - Watch a movie.)"],
+                ["东西", "dōngxi", "thing", "买东西。(Mǎi dōngxi. - Buy things.)"],
+                ["都", "dōu", "all", "我们都去。(Wǒmen dōu qù. - We all go.)"],
+                ["读", "dú", "read", "读书。(Dú shū. - Read a book.)"],
+                ["对不起", "duìbuqǐ", "sorry", "对不起！(Duìbuqǐ! - Sorry!)"],
+                ["多", "duō", "many / much", "很多钱。(Hěn duō qián. - A lot of money.)"],
+                ["多少", "duōshao", "how many / much", "多少钱？(Duōshao qián? - How much money?)"],
+                ["儿子", "érzi", "son", "我儿子五岁。(Wǒ érzi wǔ suì. - My son is five.)"],
+                ["二", "èr", "two", "二月。(Èr yuè. - February.)"],
+                ["饭馆", "fànguǎn", "restaurant", "去饭馆吃饭。(Qù fànguǎn chī fàn. - Go to a restaurant.)"],
+                ["飞机", "fēijī", "airplane", "坐飞机。(Zuò fēijī. - Take an airplane.)"],
+                ["分钟", "fēnzhōng", "minute", "十分钟。(Shí fēnzhōng. - Ten minutes.)"],
+                ["高兴", "gāoxìng", "happy", "很高兴认识你。(Hěn gāoxìng rènshi nǐ. - Nice to meet you.)"],
+                ["个", "gè", "measure word", "一个人。(Yí ge rén. - One person.)"],
+                ["工作", "gōngzuò", "work / job", "他在医院工作。(Tā zài yīyuàn gōngzuò. - He works at a hospital.)"],
+                ["狗", "gǒu", "dog", "我的狗。(Wǒ de gǒu. - My dog.)"],
+                ["汉语", "Hànyǔ", "Chinese language", "学习汉语。(Xuéxí Hànyǔ. - Study Chinese.)"],
+                ["好", "hǎo", "good", "你好！(Nǐ hǎo! - Hello!)"],
+                ["号", "hào", "date / number", "今天几号？(Jīntiān jǐ hào? - What date is today?)"],
+                ["喝", "hē", "drink", "喝水。(Hē shuǐ. - Drink water.)"],
+                ["和", "hé", "and", "我和你。(Wǒ hé nǐ. - You and I.)"],
+                ["很", "hěn", "very", "很好。(Hěn hǎo. - Very good.)"],
+                ["后面", "hòumiàn", "behind", "在我后面。(Zài wǒ hòumiàn. - Behind me.)"],
+                ["回", "huí", "return", "回家。(Huí jiā. - Go home.)"],
+                ["会", "huì", "can / know how", "我会说汉语。(Wǒ huì shuō Hànyǔ. - I can speak Chinese.)"],
+                ["几", "jǐ", "how many", "几个人？(Jǐ ge rén? - How many people?)"],
+                ["家", "jiā", "family / home", "我爱我的家。(Wǒ ài wǒ de jiā. - I love my family.)"],
+                ["叫", "jiào", "to be called", "我叫大卫。(Wǒ jiào Dàwèi. - My name is David.)"],
+                ["今天", "jīntiān", "today", "今天很热。(Jīntiān hěn rè. - Today is very hot.)"],
+                ["九", "jiǔ", "nine", "九本书。(Jiǔ běn shū. - Nine books.)"],
+                ["开", "kāi", "open / drive", "开车。(Kāi chē. - Drive a car.)"],
+                ["看", "kàn", "look / read", "看书。(Kàn shū. - Read a book.)"]
             ],
             2: [
-                ["饭店", "fàndiàn", "restaurant", "我们去饭店吃饭。", "Wǒmen qù fàndiàn chī fàn. - We go to the restaurant to eat."],
-                ["房间", "fángjiān", "room", "他的房间很大。", "Tā de fángjiān hěn dà. - His room is very big."],
-                ["非常", "fēicháng", "extremely / very", "我非常喜欢喝茶。", "Wǒ fēicháng xǐhuan hē chá. - I like drinking tea very much."],
-                ["飞机", "fēijī", "airplane", "我坐飞机去北京。", "Wǒ zuò fēijī qù Běijīng. - I take an airplane to Beijing."],
-                ["分", "fēn", "minute / point", "现在是两点十分。", "Xiànzài shì liǎng diǎn shí fēn. - It is 2:10 right now."],
-                ["分钟", "fēnzhōng", "minute (duration)", "等我五分钟。", "Děng wǒ wǔ fēnzhōng. - Wait for me for five minutes."],
-                ["高兴", "gāoxìng", "happy", "认识你很高兴。", "Rènshi nǐ hěn gāoxìng. - Nice to meet you."],
-                ["歌", "gē", "song", "他在唱一首歌。", "Tā zài chàng yī shǒu gē. - He is singing a song."],
-                ["哥哥", "gēge", "older brother", "我哥哥是医生。", "Wǒ gēge shì yīshēng. - My older brother is a doctor."],
-                ["个", "gè", "measure word", "这是一个苹果。", "Zhè shì yí ge píngguǒ. - This is an apple."],
-                ["给", "gěi", "to give / for", "爸爸给我买了一本书。", "Bàba gěi wǒ mǎi le yì běn shū. - Dad bought me a book."],
-                ["公司", "gōngsī", "company", "我明天去公司。", "Wǒ míngtiān qù gōngsī. - I'm going to the company tomorrow."],
-                ["工作", "gōngzuò", "work / job", "他的工作是什么？", "Tā de gōngzuò shì shénme? - What is his job?"],
-                ["狗", "gǒu", "dog", "我有一只小狗。", "Wǒ yǒu yì zhī xiǎo gǒu. - I have a small dog."],
-                ["贵", "guì", "expensive", "这个东西很贵。", "Zhè ge dōngxi hěn guì. - This thing is very expensive."],
-                ["国", "guó", "country", "你是哪国人？", "Nǐ shì nǎ guó rén? - What country are you from?"],
-                ["还", "hái", "still / also", "我还要一个杯子。", "Wǒ hái yào yí ge bēizi. - I still want one cup."],
-                ["孩子", "háizi", "child", "这个孩子三岁。", "Zhè ge háizi sān suì. - This child is three years old."],
-                ["汉语", "hànyǔ", "Chinese language", "老师教我们汉语。", "Lǎoshī jiāo wǒmen hànyǔ. - The teacher teaches us Chinese."],
-                ["汉字", "hànzì", "Chinese character", "我会写这个汉字。", "Wǒ huì xiě zhè ge hànzì. - I can write this Chinese character."],
-                ["好", "hǎo", "good / well", "今天天气很好。", "Jīntiān tiānqì hěn hǎo. - The weather is very good today."],
-                ["好吃", "hǎochī", "delicious (food)", "中国菜很好吃。", "Zhōngguó cài hěn hǎochī. - Chinese food is delicious."],
-                ["好看", "hǎokàn", "good-looking / interesting", "那个电影很好看。", "Nà ge diànyǐng hěn hǎokàn. - That movie is very good to watch."],
-                ["好听", "hǎotīng", "pleasant to hear", "这首歌很好听。", "Zhè shǒu gē hěn hǎotīng. - This song sounds beautiful."],
-                ["好玩儿", "hǎowánr", "fun / amusing", "这个地方很好玩儿。", "Zhè ge dìfang hěn hǎowánr. - This place is very fun."],
-                ["号", "hào", "number / date", "你的电话是多少号？", "Nǐ de diànhuà_hào. - What is your phone number?"],
-                ["喝", "hē", "to drink", "你想喝什么？", "Nǐ xiǎng hē shénme? - What do you want to drink?"],
-                ["和", "hé", "and / with", "我和妈妈去买东西。", "Wǒ hé māma qù mǎi dōngxi. - Mom and I go shopping."],
-                ["很", "hěn", "very", "她很漂亮。", "Tā hěn piàoliang. - She is very beautiful."],
-                ["后", "hòu", "behind / after", "我们三天后见。", "Wǒmen sān tiān hòu jiàn. - We will see each other after 3 days."],
-                ["回", "huí", "to return", "他明天回国。", "Tā míngtiān huí guó. - He returns to his country tomorrow."],
-                ["会", "huì", "can / know how to", "我会说汉语。", "Wǒ huì shuō hànyǔ. - I can speak Chinese."],
-                ["火车", "huǒchē", "train", "我们坐火车去。", "Wǒmen zuò huǒchē qù. - We travel by train."],
-                ["鸡蛋", "jīdàn", "egg", "早上我吃鸡蛋。", "Zǎoshang wǒ chī jīdàn. - I eat eggs in the morning."],
-                ["几", "jǐ", "how many", "你们有几个人？", "Nǐmen yǒu jǐ ge rén? - How many people do you have?"],
-                ["家", "jiā", "home / family", "我家在中国。", "Wǒ jiā zài Zhōngguó. - My home is in China."],
-                ["家人", "jiārén", "family members", "我爱我的家人。", "Wǒ ài wǒ de jiārén. - I love my family members."],
-                ["见", "jiàn", "to see / to meet", "明天见。", "Míngtiān jiàn. - See you tomorrow."],
-                ["件", "jiàn", "measure word (clothing)", "这件衣服很漂亮。", "Zhè jiàn yīfu hěn piàoliang. - This piece of clothing is beautiful."],
-                ["饺子", "jiǎozi", "dumplets", "我们中午吃饺子。", "Wǒmen zhōngwǔ chī jiǎozi. - We eat dumplings at noon."],
-                ["叫", "jiào", "to be called", "你叫什么名字？", "Nǐ jiào shénme míngzi? - What is your name?"],
-                ["姐姐", "jiějie", "older sister", "我姐姐在看书。", "Wǒ jiějie zài kànshū. - My older sister is reading a book."],
-                ["今年", "jīnnián", "this year", "我今年二十岁。", "Wǒ jīnnián èrshí suì. - I am 20 years old this year."],
-                ["今天", "jīntiān", "today", "今天天气很好。", "Jīntiān tiānqì hěn hǎo. - Today the weather is good."],
-                ["九", "jiǔ", "nine", "我有九本书。", "Wǒ yǒu jiǔ běn shū. - I have 9 books."],
-                ["觉得", "juéde", "to feel / think", "我觉得很冷。", "Wǒ juéde hěn lěng. - I feel very cold."],
-                ["开", "kāi", "to open / to turn on", "请开门。", "Qǐng kāi mén. - Please open the door."],
-                ["开车", "kāichē", "to drive a car", "爸爸开车去公司。", "Bàba kāichē qù gōngsī. - Dad drives to the company."],
-                ["看", "kàn", "to look / to watch", "我喜欢看电影。", "Wǒ xǐhuan kàn diànyǐng. - I like to watch movies."],
-                ["看病", "kànbìng", "to see a doctor", "他去医院看病。", "Tā qù yīyuàn kànbìng. - He goes to the hospital to see a doctor."]
+                ["看见", "kànjiàn", "see", "我看见他了。(Wǒ kànjiàn tā le. - I saw him.)"],
+                ["块", "kuài", "yuan (money)", "十块钱。(Shí kuài qián. - Ten yuan.)"],
+                ["来", "lái", "come", "他来了。(Tā lái le. - He has come.)"],
+                ["老师", "lǎoshī", "teacher", "王老师好。(Wáng lǎoshī hǎo. - Hello, Teacher Wang.)"],
+                ["了", "le", "particle (past tense)", "下雨了。(Xià yǔ le. - It started raining.)"],
+                ["冷", "lěng", "cold", "今天很冷。(Jīntiān hěn lěng. - Today is cold.)"],
+                ["里", "lǐ", "inside", "在水里。(Zài shuǐ lǐ. - In the water.)"],
+                ["零", "líng", "zero", "二零二四年。(Èr líng èr sì nián. - Year 2024.)"],
+                ["六", "liù", "six", "六个月。(Liù ge yuè. - Six months.)"],
+                ["妈妈", "māma", "mom", "我妈妈很漂亮。(Wǒ māma hěn piàoliang. - My mom is pretty.)"],
+                ["吗", "ma", "question particle", "你好吗？(Nǐ hǎo ma? - How are you?)"],
+                ["买", "mǎi", "buy", "买水果。(Mǎi shuǐguǒ. - Buy fruits.)"],
+                ["没关系", "méi guānxi", "it doesn't matter", "对不起！没关系。(Duìbuqǐ! Méi guānxi. - Sorry! It's ok.)"],
+                ["没有", "méiyǒu", "not have", "我没有钱。(Wǒ méiyǒu qián. - I don't have money.)"],
+                ["米饭", "mǐfàn", "cooked rice", "吃米饭。(Chī mǐfàn. - Eat rice.)"],
+                ["明天", "míngtiān", "tomorrow", "明天见。(Míngtiān jiàn. - See you tomorrow.)"],
+                ["名字", "míngzi", "name", "你叫什么名字？(Nǐ jiào shénme míngzi? - What is your name?)"],
+                ["哪", "nǎ", "which", "你是哪国人？(Nǐ shì nǎ guó rén? - Which country are you from?)"],
+                ["哪儿", "nǎr", "where", "你去哪儿？(Nǐ qù nǎr? - Where are you going?)"],
+                ["那", "nà", "that", "那个人是谁？(Nà ge rén shì shéi? - Who is that person?)"],
+                ["呢", "ne", "question particle", "你呢？(Nǐ ne? - And you?)"],
+                ["能", "néng", "can / be able to", "你能来吗？(Nǐ néng lái ma? - Can you come?)"],
+                ["你", "nǐ", "you", "你好。(Nǐ hǎo. - Hello.)"],
+                ["年", "nián", "year", "今年是哪一年？(Jīnnián shì nǎ yì nián? - What year is this?)"],
+                ["女儿", "nǚ'ér", "daughter", "我女儿在看书。(Wǒ nǚ'ér zài kànshū. - My daughter is reading.)"],
+                ["朋友", "péngyou", "friend", "我的好朋友。(Wǒ de hǎo péngyou. - My good friend.)"],
+                ["漂亮", "piàoliang", "pretty", "她很漂亮。(Tā hěn piàoliang. - She is very pretty.)"],
+                ["苹果", "píngguǒ", "apple", "吃一个苹果。(Chī yí ge píngguǒ. - Eat an apple.)"],
+                ["七", "qī", "seven", "七点钟。(Qī diǎn zhōng. - Seven o'clock.)"],
+                ["钱", "qián", "money", "多少钱？(Duōshao qián? - How much money?)"],
+                ["前面", "qiánmiàn", "in front", "他在我前面。(Tā zài wǒ qiánmiàn. - He is in front of me.)"],
+                ["请", "qǐng", "please", "请坐。(Qǐng zuò. - Please sit.)"],
+                ["去", "qù", "go", "去学校。(Qù xuéxiào. - Go to school.)"],
+                ["热", "rè", "hot", "今天很热。(Jīntiān hěn rè. - Today is hot.)"],
+                ["人", "rén", "person", "中国人。(Zhōngguó rén. - Chinese person.)"],
+                ["认识", "rènshi", "to know", "认识你很高兴。(Rènshi nǐ hěn gāoxìng. - Nice to know you.)"],
+                ["三", "sān", "three", "三天。(Sān tiān. - Three days.)"],
+                ["商店", "shāngdiàn", "store", "去商店买东西。(Qù shāngdiàn mǎi dōngxi. - Go to the store to buy things.)"],
+                ["上", "shàng", "up / above", "桌子上。(Zhuōzi shàng. - On the table.)"],
+                ["上午", "shàngwǔ", "morning", "上午好。(Shàngwǔ hǎo. - Good morning.)"],
+                ["少", "shǎo", "few / little", "很少人。(Hěn shǎo rén. - Very few people.)"],
+                ["谁", "shéi", "who", "他是谁？(Tā shì shéi? - Who is he?)"],
+                ["什么", "shénme", "what", "这是什么？(Zhè shì shénme? - What is this?)"],
+                ["十", "shí", "ten", "十块钱。(Shí kuài qián. - Ten yuan.)"],
+                ["时候", "shíhou", "time / moment", "什么时候？(Shénme shíhou? - When?)"],
+                ["是", "shì", "is / am / are", "我是学生。(Wǒ shì xuésheng. - I am a student.)"],
+                ["书", "shū", "book", "看书。(Kàn shū. - Read a book.)"],
+                ["水", "shuǐ", "water", "喝水。(Hē shuǐ. - Drink water.)"],
+                ["水果", "shuǐguǒ", "fruit", "买水果。(Mǎi shuǐguǒ. - Buy fruit.)"],
+                ["睡觉", "shuìjiào", "sleep", "去睡觉。(Qù shuìjiào. - Go to sleep.)"]
             ],
             3: [
-                ["看见", "kànjiàn", "to see / catch sight of", "我看见他了。", "Wǒ kànjiàn tā le. - I saw him."],
-                ["可以", "kěyǐ", "can / may", "我可以去吗？", "Wǒ kěyǐ qù ma? - Can I go?"],
-                ["课", "kè", "class / lesson", "上午我有汉语课。", "Shàngwǔ wǒ yǒu hànyǔ kè. - I have Chinese class in the morning."],
-                ["口", "kǒu", "mouth / (mw)", "他家有三口人。", "Tā jiā yǒu sān kǒu rén. - There are 3 people in his family."],
-                ["块", "kuài", "piece / (mw for money)", "十块钱。", "Shí kuài qián. - Ten yuan."],
-                ["来", "lái", "to come", "他明天来我家。", "Tā míngtiān lái wǒ jiā. - He comes to my home tomorrow."],
-                ["老师", "lǎoshī", "teacher", "老师很好。", "Lǎoshī hěn hǎo. - The teacher is very good."],
-                ["了", "le", "(completed action)", "下雨了。", "Xiàyǔ le. - It has started raining."],
-                ["冷", "lěng", "cold", "今天天气很冷。", "Jīntiān tiānqì hěn lěng. - The weather is very cold today."],
-                ["里", "lǐ", "inside", "手机在包里。", "Shǒujī zài bāo lǐ. - The phone is inside the bag."],
-                ["两", "liǎng", "two", "两个苹果。", "Liǎng ge píngguǒ. - Two apples."],
-                ["零", "líng", "zero", "零度。", "Líng dù. - Zero degrees."],
-                ["六", "liù", "six", "六年了。", "Liù nián le. - Six years have passed."],
-                ["妈妈", "māma", "mom", "妈妈在做饭。", "Māma zài zuò fàn. - Mom is cooking."],
-                ["吗", "ma", "(question particle)", "你好吗？", "Nǐ hǎo ma? - How are you?"],
-                ["买", "mǎi", "to buy", "我去买书。", "Wǒ qù mǎi shū. - I go to buy a book."],
-                ["卖", "mài", "to sell", "这个店卖水果。", "Zhè ge diàn mài shuǐguǒ. - This shop sells fruit."],
-                ["忙", "máng", "busy", "昨天我很忙。", "Zuótiān wǒ hěn máng. - I was very busy yesterday."],
-                ["猫", "māo", "cat", "那是一只小猫。", "Nà shì yī zhī xiǎo māo. - That is a small cat."],
-                ["没关系", "méi guānxi", "it doesn't matter", "对不起！- 没关系。", "Duìbuqǐ! - Méi guānxi. - Sorry! - It doesn't matter."],
-                ["没事", "méishì", "it's nothing", "我没事，谢谢。", "Wǒ méishì, xièxie. - I'm fine, thank you."],
-                ["没有", "méiyǒu", "don't have", "我没有钱。", "Wǒ méiyǒu qián. - I don't have money."],
-                ["妹妹", "mèimei", "younger sister", "妹妹不吃肉。", "Mèimei bù chī ròu. - Younger sister doesn't eat meat."],
-                ["们", "men", "(plural marker)", "同学们好！", "Tóngxué men hǎo! - Hello classmates!"],
-                ["米饭", "mǐfàn", "cooked rice", "我要吃米饭。", "Wǒ yào chī mǐfàn. - I want to eat rice."],
-                ["面包", "miànbāo", "bread", "哥哥吃面包。", "Gēge chī miànbāo. - Older brother eats bread."],
-                ["面条儿", "miàntiáor", "noodles", "午饭我们吃面条儿。", "Wǔfàn wǒmen chī miàntiáor. - We eat noodles for lunch."],
-                ["明年", "míngnián", "next year", "明年我去中国。", "Míngnián wǒ qù Zhōngguó. - Next year I will go to China."],
-                ["明天", "míngtiān", "tomorrow", "明天我不上班。", "Míngtiān wǒ bù shàngbān. - I don't work tomorrow."],
-                ["名字", "míngzi", "name", "他的名字叫大卫。", "Tā de míngzi jiào Dàwèi. - His name is David."],
-                ["哪", "nǎ", "which", "你是哪国人？", "Nǐ shì nǎ guó rén? - What country are you from?"],
-                ["哪个", "nǎge", "which one", "你要哪个电脑？", "Nǐ yào nǎge diànnǎo? - Which computer do you want?"],
-                ["哪里", "nǎlǐ", "where", "他在哪里工作？", "Tā zài nǎlǐ gōngzuò? - Where does he work?"],
-                ["哪儿", "nǎr", "where", "你去哪儿？", "Nǐ qù nǎr? - Where are you going?"],
-                ["哪些", "nǎxiē", "which ones", "你买了哪些书？", "Nǐ mǎi le nǎxiē shū? - Which books did you buy?"],
-                ["那", "nà", "that", "那是我的朋友。", "Nà shì wǒ de péngyou. - That is my friend."],
-                ["那边", "nàbiān", "over there", "医院在那边。", "Yīyuàn zài nàbiān. - The hospital is over there."],
-                ["那个", "nàge", "that one", "我不要那个。", "Wǒ bùyào nàge. - I don't want that one."],
-                ["那里", "nàlǐ", "there", "那里有很多学生。", "Nàlǐ yǒu hěn duō xuésheng. - There are many students there."],
-                ["那儿", "nàr", "there", "你的水在那儿。", "Nǐ de shuǐ zài nàr. - Your water is over there."],
-                ["那些", "nàxiē", "those", "那些人是谁？", "Nàxiē rén shì shéi? - Who are those people?"],
-                ["男", "nán", "male", "他是个男孩。", "Tā shì ge nánhái. - He is a boy."],
-                ["男朋友", "nánpéngyou", "boyfriend", "她的男朋友很高。", "Tā de nánpéngyou hěn gāo. - Her boyfriend is very tall."],
-                ["呢", "ne", "(question particle)", "我很好，你呢？", "Wǒ hěn hǎo, nǐ ne? - I am good, and you?"],
-                ["能", "néng", "can", "我能坐这里吗？", "Wǒ néng zuò zhèlǐ ma? - Can I sit here?"],
-                ["你", "nǐ", "you", "你好！", "Nǐ hǎo! - Hello!"],
-                ["你好", "nǐ hǎo", "hello", "老师，你好！", "Lǎoshī, nǐ hǎo! - Hello, teacher!"],
-                ["你们", "nǐmen", "you (plural)", "你们去哪儿？", "Nǐmen qù nǎr? - Where are you all going?"],
-                ["年", "nián", "year", "去年我没来。", "Qùnián wǒ méi lái. - I didn't come last year."],
-                ["您", "nín", "you (polite)", "您好，先生！", "Nín hǎo, xiānsheng! - Hello, sir!"]
+                ["说", "shuō", "speak", "说话。(Shuō huà. - Speak.)"],
+                ["说话", "shuōhuà", "talk", "不要说话。(Bú yào shuōhuà. - Don't talk.)"],
+                ["四", "sì", "four", "四个人。(Sì ge rén. - Four people.)"],
+                ["岁", "suì", "years old", "他十岁。(Tā shí suì. - He is ten years old.)"],
+                ["他", "tā", "he / him", "他是老师。(Tā shì lǎoshī. - He is a teacher.)"],
+                ["她", "tā", "she / her", "她很漂亮。(Tā hěn piàoliang. - She is pretty.)"],
+                ["太", "tài", "too (much)", "太好了！(Tài hǎo le! - That's great!)"],
+                ["天气", "tiānqì", "weather", "今天天气很好。(Jīntiān tiānqì hěn hǎo. - The weather is good today.)"],
+                ["听", "tīng", "listen", "听音乐。(Tīng yīnyuè. - Listen to music.)"],
+                ["同学", "tóngxué", "classmate", "我的同学。(Wǒ de tóngxué. - My classmate.)"],
+                ["喂", "wèi", "hello (on phone)", "喂，你好。(Wèi, nǐ hǎo. - Hello [on phone].)"],
+                ["我", "wǒ", "I / me", "我是美国人。(Wǒ shì Měiguórén. - I am American.)"],
+                ["我们", "wǒmen", "we / us", "我们是朋友。(Wǒmen shì péngyou. - We are friends.)"],
+                ["五", "wǔ", "five", "五本书。(Wǔ běn shū. - Five books.)"],
+                ["喜欢", "xǐhuan", "like", "我喜欢你。(Wǒ xǐhuan nǐ. - I like you.)"],
+                ["下", "xià", "under / down", "在桌子下。(Zài zhuōzi xià. - Under the table.)"],
+                ["下午", "xiàwǔ", "afternoon", "下午好。(Xiàwǔ hǎo. - Good afternoon.)"],
+                ["下雨", "xiàyǔ", "rain", "明天会下雨。(Míngtiān huì xià yǔ. - It will rain tomorrow.)"],
+                ["先生", "xiānsheng", "Mr. / husband", "王先生。(Wáng xiānsheng. - Mr. Wang.)"],
+                ["现在", "xiànzài", "now", "现在几点？(Xiànzài jǐ diǎn? - What time is it now?)"],
+                ["想", "xiǎng", "think / want", "我想回家。(Wǒ xiǎng huí jiā. - I want to go home.)"],
+                ["小", "xiǎo", "small", "这个苹果很小。(Zhè ge píngguǒ hěn xiǎo. - This apple is very small.)"],
+                ["小姐", "xiǎojiě", "Miss", "李小姐。(Lǐ xiǎojiě. - Miss Li.)"],
+                ["些", "xiē", "some", "一些书。(Yì xiē shū. - Some books.)"],
+                ["写", "xiě", "write", "写汉字。(Xiě Hànzì. - Write Chinese characters.)"],
+                ["谢谢", "xièxie", "thank you", "谢谢你。(Xièxie nǐ. - Thank you.)"],
+                ["星期", "xīngqī", "week", "星期一。(Xīngqī yī. - Monday.)"],
+                ["学生", "xuésheng", "student", "我是学生。(Wǒ shì xuésheng. - I am a student.)"],
+                ["学习", "xuéxí", "study", "学习汉语。(Xuéxí Hànyǔ. - Study Chinese.)"],
+                ["学校", "xuéxiào", "school", "去学校。(Qù xuéxiào. - Go to school.)"],
+                ["一", "yī", "one", "一个人。(Yí ge rén. - One person.)"],
+                ["衣服", "yīfu", "clothes", "买衣服。(Mǎi yīfu. - Buy clothes.)"],
+                ["医生", "yīshēng", "doctor", "他是医生。(Tā shì yīshēng. - He is a doctor.)"],
+                ["医院", "yīyuàn", "hospital", "在医院工作。(Zài yīyuàn gōngzuò. - Work in a hospital.)"],
+                ["椅子", "yǐzi", "chair", "坐椅子上。(Zuò yǐzi shàng. - Sit on the chair.)"],
+                ["有", "yǒu", "have", "我有钱。(Wǒ yǒu qián. - I have money.)"],
+                ["月", "yuè", "month", "一月。(Yī yuè. - January.)"],
+                ["再见", "zàijiàn", "goodbye", "明天再见。(Míngtiān zàijiàn. - See you tomorrow.)"],
+                ["在", "zài", "at / in / on", "在家。(Zài jiā. - At home.)"],
+                ["怎么", "zěnme", "how", "怎么去？(Zěnme qù? - How to go?)"],
+                ["怎么样", "zěnmeyàng", "how about", "天气怎么样？(Tiānqì zěnmeyàng? - How is the weather?)"],
+                ["这", "zhè", "this", "这是我的书。(Zhè shì wǒ de shū. - This is my book.)"],
+                ["中国", "Zhōngguó", "China", "我去中国。(Wǒ qù Zhōngguó. - I go to China.)"],
+                ["中午", "zhōngwǔ", "noon", "中午吃饭。(Zhōngwǔ chī fàn. - Eat at noon.)"],
+                ["住", "zhù", "live", "住在北京。(Zhù zài Běijīng. - Live in Beijing.)"],
+                ["桌子", "zhuōzi", "table / desk", "桌子上有书。(Zhuōzi shàng yǒu shū. - There are books on the table.)"],
+                ["字", "zì", "character", "写字。(Xiě zì. - Write characters.)"],
+                ["昨天", "zuótiān", "yesterday", "昨天很冷。(Zuótiān hěn lěng. - Yesterday was cold.)"],
+                ["坐", "zuò", "sit", "请坐。(Qǐng zuò. - Please sit.)"],
+                ["做", "zuò", "do / make", "做饭。(Zuò fàn. - Make food / cook.)"]
             ],
             4: [
-                ["朋友", "péngyou", "friend", "他是我的好朋友。", "Tā shì wǒ de hǎo péngyou. - He is my good friend."],
-                ["便宜", "piányi", "cheap", "这里的苹果很便宜。", "Zhèlǐ de píngguǒ hěn piányi. - The apples here are cheap."],
-                ["漂亮", "piàoliang", "beautiful", "她的衣服很漂亮。", "Tā de yīfu hěn piàoliang. - Her clothes are beautiful."],
-                ["苹果", "píngguǒ", "apple", "我买了一些苹果。", "Wǒ mǎi le yīxiē píngguǒ. - I bought some apples."],
-                ["七", "qī", "seven", "一星期有七天。", "Yī xīngqī yǒu qī tiān. - A week has seven days."],
-                ["起床", "qǐchuáng", "to wake up", "我早上七点起床。", "Wǒ zǎoshang qī diǎn qǐchuáng. - I wake up at 7am."],
-                ["千", "qiān", "thousand", "两千元。", "Liǎng qiān yuán. - 2000 yuan."],
-                ["前", "qián", "front", "学校前面。", "Xuéxiào qiánmiàn. - In front of school."],
-                ["钱", "qián", "money", "我没有钱。", "Wǒ méiyǒu qián. - I don't have money."],
-                ["请", "qǐng", "please", "请坐！", "Qǐng zuò! - Please sit."],
-                ["请问", "qǐngwèn", "excuse me", "请问他在吗？", "Qǐngwèn tā zài ma? - Excuse me, is he here?"],
-                ["去", "qù", "to go", "我们去火车站。", "Wǒmen qù huǒchēzhàn. - We go to the station."],
-                ["去年", "qùnián", "last year", "去年我去了北京。", "Qùnián wǒ qù le Běijīng. - I went to Beijing last year."],
-                ["热", "rè", "hot", "天气太热了。", "Tiānqì tài rè le. - The weather is too hot."],
-                ["人", "rén", "person", "那个人是谁？", "Nà ge rén shì shéi? - Who is that person?"],
-                ["认识", "rènshi", "to know", "你认识他吗？", "Nǐ rènshi tā ma? - Do know him?"],
-                ["日", "rì", "sun / day", "星期日。", "Xīngqīrì. - Sunday."],
-                ["三", "sān", "three", "三点钟。", "Sān diǎn zhōng. - 3 o'clock."],
-                ["商店", "shāngdiàn", "store", "我去商店买水。", "Wǒ qù shāngdiàn mǎi shuǐ. - I go to the store."],
-                ["上", "shàng", "up", "在桌子上。", "Zài zhuōzi shàng. - On the table."],
-                ["上班", "shàngbān", "go to work", "爸爸六点下班。", "Bàba liù diǎn xiàbān. - Dad finishes work at 6."],
-                ["上课", "shàngkè", "attend class", "我们在上课。", "Wǒmen zài shàngkè. - We are in class."],
-                ["上午", "shàngwǔ", "morning", "上午我不忙。", "Shàngwǔ wǒ bù máng. - I am not busy in the morning."],
-                ["上学", "shàngxué", "go to school", "孩子上学了。", "Háizi shàngxué le. - The child went to school."],
-                ["少", "shǎo", "few / little", "喝少点水。", "Hē shǎo diǎn shuǐ. - Drink less water."],
-                ["谁", "shéi", "who", "谁在说话？", "Shéi zài shuōhuà? - Who is speaking?"],
-                ["什么", "shénme", "what", "这是什么？", "Zhè shì shénme? - What is this?"],
-                ["生病", "shēngbìng", "to get sick", "她生病了。", "Tā shēngbìng le. - She got sick."],
-                ["十", "shí", "ten", "十二月。", "Shí'èryuè. - December."],
-                ["时候", "shíhou", "time", "你什么时候来？", "Nǐ shénme shíhou lái? - When are you coming?"],
-                ["时间", "shíjiān", "time", "没有时间。", "Méiyǒu shíjiān. - No time."],
-                ["事", "shì", "matter", "有什么事？", "Yǒu shénme shì? - What's the matter?"],
-                ["是", "shì", "to be", "我是老师。", "Wǒ shì lǎoshī. - I am a teacher."],
-                ["手机", "shǒujī", "mobile phone", "我的手机。", "Wǒ de shǒujī. - My mobile phone."],
-                ["书", "shū", "book", "这是一本书。", "Zhè  shì yī běn shū. - This is a book."],
-                ["书店", "shūdiàn", "bookstore", "去书店买书。", "Qù shūdiàn mǎi shū. - Go to the bookstore."],
-                ["水", "shuǐ", "water", "喝水。", "Hē shuǐ. - Drink water."],
-                ["水果", "shuǐguǒ", "fruit", "吃水果。", "Chī shuǐguǒ. - Eat fruit."],
-                ["睡", "shuì", "to sleep", "我想睡了。", "Wǒ xiǎng shuì le. - I want to sleep."],
-                ["睡觉", "shuìjiào", "to sleep", "十点睡觉。", "Shí diǎn shuìjiào. - Sleep at 10."],
-                ["说", "shuō", "to speak", "他会说汉语。", "Tā huì shuō hànyǔ. - He speaks Chinese."],
-                ["说话", "shuōhuà", "to talk", "别说话。", "Bié shuōhuà. - Don't talk."],
-                ["四", "sì", "four", "四个苹果。", "Sì ge píngguǒ. - 4 apples."],
-                ["岁", "suì", "years old", "我三岁。", "Wǒ sān suì. - I am 3."],
-                ["他", "tā", "he", "他是我的老师。", "Tā  shì wǒ de lǎoshī. - He is my teacher."],
-                ["它", "tā", "it", "它是我的猫。", "Tā shì wǒ de māo. - It is my cat."],
-                ["她", "tā", "she", "她是我的朋友。", "Tā shì wǒ de péngyou. - She is my friend."],
-                ["他们", "tāmen", "they", "他们去哪儿？", "Tāmen qù nǎr? - Where are they going?"],
-                ["它们", "tāmen", "they (animals)", "它们是狗。", "Tāmen shì gǒu. - They are dogs."],
-                ["她们", "tāmen", "they (fem.)", "她们是同学。", "Tāmen shì tóngxué. - They are classmates."]
+                ["吧", "ba", "suggestion particle", "我们走吧。(Wǒmen zǒu ba. - Let's go.)"],
+                ["白", "bái", "white", "白色的衣服。(Báisè de yīfu. - White clothes.)"],
+                ["百", "bǎi", "hundred", "一百块。(Yì bǎi kuài. - One hundred yuan.)"],
+                ["帮助", "bāngzhù", "help", "帮助我。(Bāngzhù wǒ. - Help me.)"],
+                ["报纸", "bàozhǐ", "newspaper", "看报纸。(Kàn bàozhǐ. - Read a newspaper.)"],
+                ["比", "bǐ", "compare", "他比我高。(Tā bǐ wǒ gāo. - He is taller than me.)"],
+                ["别", "bié", "don't", "别说话。(Bié shuōhuà. - Don't speak.)"],
+                ["长", "cháng", "long", "很长的时间。(Hěn cháng de shíjiān. - A very long time.)"],
+                ["唱歌", "chànggē", "sing", "喜欢唱歌。(Xǐhuan chànggē. - Like to sing.)"],
+                ["出", "chū", "go out", "出去。(Chūqù. - Go out.)"],
+                ["穿", "chuān", "wear", "穿衣服。(Chuān yīfu. - Put on clothes.)"],
+                ["次", "cì", "time (frequency)", "去过一次。(Qù guò yí cì. - Have gone once.)"],
+                ["从", "cóng", "from", "从这儿走。(Cóng zhèr zǒu. - Walk from here.)"],
+                ["错", "cuò", "wrong", "写错了。(Xiě cuò le. - Wrote incorrectly.)"],
+                ["打篮球", "dǎ lánqiú", "play basketball", "去打篮球。(Qù dǎ lánqiú. - Go play basketball.)"],
+                ["大家", "dàjiā", "everyone", "大家好。(Dàjiā hǎo. - Hello everyone.)"],
+                ["到", "dào", "arrive", "到了没？(Dào le méi? - Have you arrived?)"],
+                ["得", "de", "degree particle", "跑得快。(Pǎo de kuài. - Run fast.)"],
+                ["等", "děng", "wait", "等一下。(Děng yí xià. - Wait a moment.)"],
+                ["弟弟", "dìdi", "younger brother", "我弟弟。(Wǒ dìdi. - My younger brother.)"],
+                ["第一", "dì-yī", "first", "第一名。(Dì-yī míng. - First place.)"],
+                ["懂", "dǒng", "understand", "听懂了。(Tīng dǒng le. - I understand.)"],
+                ["对", "duì", "right / correct", "你说的对。(Nǐ shuō de duì. - You are right.)"],
+                ["房间", "fángjiān", "room", "这个房间很大。(Zhè ge fángjiān hěn dà. - This room is very big.)"],
+                ["非常", "fēicháng", "extremely", "非常好。(Fēicháng hǎo. - Extremely good.)"],
+                ["服务员", "fúwùyuán", "waiter", "服务员，点菜！(Fúwùyuán, diǎn cài! - Waiter, order food!)"],
+                ["高", "gāo", "tall / high", "他很高。(Tā hěn gāo. - He is very tall.)"],
+                ["告诉", "gàosu", "tell", "告诉我。(Gàosu wǒ. - Tell me.)"],
+                ["哥哥", "gēge", "older brother", "我哥哥。(Wǒ gēge. - My older brother.)"],
+                ["给", "gěi", "give", "给我。(Gěi wǒ. - Give me.)"],
+                ["公共汽车", "gōnggòng qìchē", "bus", "坐公共汽车。(Zuò gōnggòng qìchē. - Take the bus.)"],
+                ["公司", "gōngsī", "company", "去公司上班。(Qù gōngsī shàngbān. - Go to the company to work.)"],
+                ["贵", "guì", "expensive", "太贵了。(Tài guì le. - Too expensive.)"],
+                ["过", "guo", "experience particle", "我去过中国。(Wǒ qù guò Zhōngguó. - I have been to China.)"],
+                ["还", "hái", "still / also", "还有谁？(Hái yǒu shéi? - Who else?)"],
+                ["孩子", "háizi", "child", "好孩子。(Hǎo háizi. - Good child.)"],
+                ["好吃", "hǎochī", "delicious", "很好吃。(Hěn hǎochī. - Very delicious.)"],
+                ["黑", "hēi", "black", "黑色的狗。(Hēisè de gǒu. - Black dog.)"],
+                ["红", "hóng", "red", "红色的苹果。(Hóngsè de píngguǒ. - Red apple.)"],
+                ["欢迎", "huānyíng", "welcome", "欢迎光临。(Huānyíng guānglín. - Welcome.)"],
+                ["回答", "huídá", "answer", "回答问题。(Huídá wèntí. - Answer the question.)"],
+                ["件", "jiàn", "measure word (clothes)", "一件衣服。(Yí jiàn yīfu. - One piece of clothing.)"],
+                ["教室", "jiàoshì", "classroom", "在教室里。(Zài jiàoshì lǐ. - In the classroom.)"],
+                ["姐姐", "jiějie", "older sister", "我姐姐。(Wǒ jiějie. - My older sister.)"],
+                ["介绍", "jièshào", "introduce", "自我介绍。(Zìwǒ jièshào. - Introduce myself.)"],
+                ["进", "jìn", "enter", "请进。(Qǐng jìn. - Please come in.)"],
+                ["近", "jìn", "near", "很近。(Hěn jìn. - Very near.)"],
+                ["就", "jiù", "then / right away", "我就来。(Wǒ jiù lái. - I will come right away.)"],
+                ["觉得", "juéde", "feel / think", "我觉得很好。(Wǒ juéde hěn hǎo. - I think it is very good.)"],
+                ["咖啡", "kāfēi", "coffee", "喝咖啡。(Hē kāfēi. - Drink coffee.)"]
             ],
             5: [
-                ["太", "tài", "too / extremely", "太好了！", "Tài hǎo le! - Great! / Too good!"],
-                ["天气", "tiānqì", "weather", "今天天气怎么样？", "Jīntiān tiānqì zěnmeyàng? - How is the weather today?"],
-                ["听", "tīng", "to listen", "我喜欢听歌。", "Wǒ xǐhuan tīng gē. - I like to listen to songs."],
-                ["听见", "tīngjiàn", "to hear", "你听见了吗？", "Nǐ tīngjiàn le ma? - Did you hear?"],
-                ["同学", "tóngxué", "classmate", "他是我的同学。", "Tā  shì wǒ de tóngxué. - He is my classmate."],
-                ["外", "wài", "outside", "别去外面。", "Bié qù wàimiàn. - Don't go outside."],
-                ["外边", "wàibian", "outside", "外边很冷。", "Wàibian hěn lěng. - It is cold outside."],
-                ["玩", "wán", "to play", "孩子们在玩。", "Háizi men zài wán. - The children are playing."],
-                ["晚", "wǎn", "late", "太晚了，回家吧。", "Tài wǎn le, huíjiā ba. - It's too late, let's go home."],
-                ["晚饭", "wǎnfàn", "dinner", "晚饭吃饺子。", "Wǎnfàn chī jiǎozi. - Eat dumplings for dinner."],
-                ["晚上", "wǎnshang", "evening / night", "晚上我不在家。", "Wǎnshang wǒ bù zài jiā. - I am not at home in the evening."],
-                ["喂", "wèi", "hello (phone)", "喂，你是谁？", "Wèi, nǐ  shì shéi? - Hello, who are you?"],
-                ["问", "wèn", "to ask", "我问老师一个问题。", "Wǒ wèn lǎoshī yī ge wèntí. - I ask the teacher a question."],
-                ["问题", "wèntí", "question / problem", "没问题。", "Méi wèntí. - No problem."],
-                ["我", "wǒ", "I / me", "我爱你。", "Wǒ ài nǐ. - I love you."],
-                ["我们", "wǒmen", "we / us", "我们一起去吧。", "Wǒmen yīqǐ qù ba. - Let's go together."],
-                ["五", "wǔ", "five", "星期五。", "Xīngqīwǔ. - Friday."],
-                ["午饭", "wǔfàn", "lunch", "午饭我吃米饭。", "Wǔfàn wǒ chī mǐfàn. - I eat rice for lunch."],
-                ["喜欢", "xǐhuan", "to like", "我喜欢看电影。", "Wǒ xǐhuan kàn diànyǐng. - I like to watch movies."],
-                ["下", "xià", "down / under", "在桌子下面。", "Zài zhuōzi xiàmiàn. - Under the table."],
-                ["下雨", "xiàyǔ", "to rain", "今天下雨了。", "Jīntiān xiàyǔ le. - It's raining today."],
-                ["下班", "xiàbān", "get off work", "爸爸六点下班。", "Bàba liù diǎn xiàbān. - Dad finishes work at six."],
-                ["下课", "xiàkè", "finish class", "我们下课了。", "Wǒmen xiàkè le. - Class is over."],
-                ["下午", "xiàwǔ", "afternoon", "下午我去学校。", "Xiàwǔ wǒ qù xuéxiào. - I go to school in the afternoon."],
-                ["先生", "xiānsheng", "Mr. / sir", "王先生在打电话。", "Wáng xiānsheng zài dǎ diànhuà. - Mr. Wang is on the phone."],
-                ["现在", "xiànzài", "now", "现在十点半。", "Xiànzài shí diǎn bàn. - It is 10:30 now."],
-                ["想", "xiǎng", "to think / want", "我想买一个新手机。", "Wǒ xiǎng mǎi yí ge xīn shǒujī. - I want to buy a new phone."],
-                ["小", "xiǎo", "small", "这个苹果很小。", "Zhè ge píngguǒ hěn xiǎo. - This apple is very small."],
-                ["小朋友", "xiǎopéngyou", "child / kid", "小朋友，你好！", "Xiǎopéngyou, nǐ hǎo! - Hello, little friend!"],
-                ["小时", "xiǎoshí", "hour", "我学了两个小时。", "Wǒ xué le liǎng gè xiǎoshí. - I studied for two hours."],
-                ["小学", "xiǎoxué", "primary school", "我儿子上小学。", "Wǒ de érzi shàng xiǎoxué. - My son goes to primary school."],
-                ["小学生", "xiǎoxuéshēng", "primary student", "她是小学生。", "Tā  shì xiǎoxuéshēng. - She is a primary school student."],
-                ["些", "xiē", "some", "这些书是我的。", "These are mine. - These books are mine."],
-                ["写", "xiě", "to write", "请写你的名字。", "Qǐng xiě nǐ de míngzi. - Please write your name."],
-                ["谢谢", "xièxie", "thank you", "谢谢你帮我。", "Xièxie nǐ bāng wǒ. - Thank you for helping me."],
-                ["新", "xīn", "new", "我的新手机。", "Wǒ de xīn shǒujī. - My new mobile phone."],
-                ["星期", "xīngqī", "week", "一星期有七天。", "Yī xīngqī yǒu qī tiān. - A week has seven days."],
-                ["星期日", "xīngqīrì", "Sunday", "星期日去商店。", "Xīngqīrì qù shāngdiàn. - Go to the store on Sunday."],
-                ["星期天", "xīngqītiān", "Sunday", "星期天我休息。", "Xīngqītiān wǒ xiūxi. - I rest on Sunday."],
-                ["休息", "xiūxi", "to rest", "我累了，想休息。", "Wǒ lèi le, xiǎng xiūxi. - I am tired and want to rest."],
-                ["学", "xué", "to study", "我学汉语。", "Wǒ xué hànyǔ. - I study Chinese."],
-                ["学生", "xuésheng", "student", "他们是学生。", "Tāmen  shì xuésheng. - They are students."],
-                ["学习", "xuéxí", "to study / learn", "他在学习汉语。", "Tā zài xuéxí hànyǔ. - He is studying Chinese."],
-                ["学校", "xuéxiào", "school", "我去学校看书。", "Wǒ qù xuéxiào kànshū. - I go to school to read books."],
-                ["雪", "xuě", "snow", "下雪了。", "Xiàxuě le. - It is snowing."],
-                ["要", "yào", "to want / need", "我要喝水。", "Wǒ yào hē shuǐ. - I want to drink water."],
-                ["也", "yě", "also / too", "他是老师，我也是。", "Tā  shì lǎoshī, wǒ yě  shì. - He is a teacher, and I am too."],
-                ["一", "yī", "one", "一个杯子。", "Yī gè bēizi. - One cup."],
-                ["衣服", "yīfu", "clothes", "买新衣服。", "Mǎi xīn yīfu. - Buy new clothes."],
-                ["医生", "yīshēng", "doctor", "他是医院的医生。", "Tā  shì yīyuàn de yīshēng. - He is a doctor at the hospital."]
+                ["开始", "kāishǐ", "start", "比赛开始。(Bǐsài kāishǐ. - The game starts.)"],
+                ["考试", "kǎoshì", "exam", "明天有考试。(Míngtiān yǒu kǎoshì. - There is an exam tomorrow.)"],
+                ["可能", "kěnéng", "maybe / possible", "他可能不来。(Tā kěnéng bù lái. - He might not come.)"],
+                ["可以", "kěyǐ", "can / may", "可以吗？(Kěyǐ ma? - Is it okay?)"],
+                ["课", "kè", "lesson / class", "上课。(Shàng kè. - Attend class.)"],
+                ["快", "kuài", "fast / quick", "快跑。(Kuài pǎo. - Run fast.)"],
+                ["快乐", "kuàilè", "happy", "生日快乐。(Shēngrì kuàilè. - Happy birthday.)"],
+                ["累", "lèi", "tired", "我很累。(Wǒ hěn lèi. - I am very tired.)"],
+                ["离", "lí", "away from", "离这儿很近。(Lí zhèr hěn jìn. - Very near from here.)"],
+                ["两", "liǎng", "two (with measure word)", "两个人。(Liǎng ge rén. - Two people.)"],
+                ["路", "lù", "road", "走路。(Zǒu lù. - Walk.)"],
+                ["旅游", "lǚyóu", "travel", "去北京旅游。(Qù Běijīng lǚyóu. - Travel to Beijing.)"],
+                ["卖", "mài", "sell", "卖水果。(Mài shuǐguǒ. - Sell fruits.)"],
+                ["慢", "màn", "slow", "太慢了。(Tài màn le. - Too slow.)"],
+                ["忙", "máng", "busy", "我很忙。(Wǒ hěn máng. - I am very busy.)"],
+                ["猫", "māo", "cat", "我的猫。(Wǒ de māo. - My cat.)"],
+                ["每", "měi", "every", "每天。(Měi tiān. - Every day.)"],
+                ["妹妹", "mèimei", "younger sister", "我妹妹。(Wǒ mèimei. - My younger sister.)"],
+                ["门", "mén", "door", "开门。(Kāi mén. - Open the door.)"],
+                ["男", "nán", "male", "男人。(Nán rén. - Man.)"],
+                ["您", "nín", "you (polite)", "您好。(Nín hǎo. - Hello [polite].)"],
+                ["牛奶", "niúnǎi", "milk", "喝牛奶。(Hē niúnǎi. - Drink milk.)"],
+                ["女", "nǚ", "female", "女人。(Nǚ rén. - Woman.)"],
+                ["旁边", "pángbiān", "beside", "在我旁边。(Zài wǒ pángbiān. - Beside me.)"],
+                ["跑步", "pǎobù", "run", "去跑步。(Qù pǎobù. - Go running.)"],
+                ["便宜", "piányi", "cheap", "很便宜。(Hěn piányi. - Very cheap.)"],
+                ["票", "piào", "ticket", "买票。(Mǎi piào. - Buy a ticket.)"],
+                ["妻子", "qīzi", "wife", "我的妻子。(Wǒ de qīzi. - My wife.)"],
+                ["起床", "qǐchuáng", "wake up", "早上起床。(Zǎoshang qǐchuáng. - Wake up in the morning.)"],
+                ["千", "qiān", "thousand", "一千块。(Yì qiān kuài. - One thousand yuan.)"],
+                ["铅笔", "qiānbǐ", "pencil", "买铅笔。(Mǎi qiānbǐ. - Buy a pencil.)"],
+                ["晴", "qíng", "sunny", "今天是晴天。(Jīntiān shì qíng tiān. - Today is sunny.)"],
+                ["去年", "qùnián", "last year", "去年我去过中国。(Qùnián wǒ qù guò Zhōngguó. - I went to China last year.)"],
+                ["让", "ràng", "let / make", "让他去。(Ràng tā qù. - Let him go.)"],
+                ["日", "rì", "day / sun", "十月一日。(Shí yuè yī rì. - October 1st.)"],
+                ["上班", "shàngbān", "go to work", "去上班。(Qù shàngbān. - Go to work.)"],
+                ["身体", "shēntǐ", "body / health", "身体健康。(Shēntǐ jiànkāng. - Good health.)"],
+                ["生病", "shēngbìng", "get sick", "我生病了。(Wǒ shēngbìng le. - I am sick.)"],
+                ["生日", "shēngrì", "birthday", "我的生日。(Wǒ de shēngrì. - My birthday.)"],
+                ["时间", "shíjiān", "time", "没有时间。(Méiyǒu shíjiān. - No time.)"],
+                ["事情", "shìqing", "thing / matter", "很多事情。(Hěn duō shìqing. - Many things.)"],
+                ["手表", "shǒubiǎo", "watch", "买手表。(Mǎi shǒubiǎo. - Buy a watch.)"],
+                ["手机", "shǒujī", "cell phone", "我的手机。(Wǒ de shǒujī. - My cell phone.)"],
+                ["送", "sòng", "deliver / give", "送给你。(Sòng gěi nǐ. - Give it to you.)"],
+                ["虽然", "suīrán", "although", "虽然下雨，但是...(Suīrán xià yǔ, dànshì... - Although it's raining, but...)"],
+                ["但是", "dànshì", "but", "我很累，但是我很高兴。(Wǒ hěn lèi, dànshì wǒ hěn gāoxìng. - I'm tired, but happy.)"],
+                ["它", "tā", "it", "它是我的狗。(Tā shì wǒ de gǒu. - It is my dog.)"],
+                ["踢足球", "tī zúqiú", "play football", "去踢足球。(Qù tī zúqiú. - Go play football.)"],
+                ["题", "tí", "question / problem", "这个问题。(Zhè ge wèntí. - This problem.)"],
+                ["跳舞", "tiàowǔ", "dance", "喜欢跳舞。(Xǐhuan tiàowǔ. - Like to dance.)"]
             ],
             6: [
-                ["牛奶", "niúnǎi", "milk", "妹妹喜欢喝牛奶。", "Mèimei xǐhuan hē niúnǎi. - Younger sister likes to drink milk."],
-                ["女", "nǚ", "female", "他是女医生。", "Tā  shì nǚ yīshēng. - She is a female doctor."],
-                ["女儿", "nǚ'ér", "daughter", "他有一个女儿。", "Tā yǒu yí ge nǚ'ér. - He has a daughter."],
-                ["女朋友", "nǚpéngyou", "girlfriend", "我的女朋友很漂亮。", "Wǒ de nǚpéngyou hěn piàoliang. - My girlfriend is very beautiful."],
-                ["女士", "nǚshì", "lady / Ms.", "女士们，先生们，下午好。", "Nǚshì men, xiānsheng men, xiàwǔ hǎo. - Ladies and gentlemen, good afternoon."],
-                ["医院", "yīyuàn", "hospital", "我明天去医院看病。", "Wǒ míngtiān qù yīyuàn kànbìng. - I am going to the hospital tomorrow to see a doctor."],
-                ["一半", "yībàn", "half", "给我一半苹果。", "Gěi wǒ yí bàn píngguǒ. - Give me half an apple."],
-                ["一下", "yīxià", "a bit / once", "请等一下。", "Qǐng děng yíxià. - Please wait a bit."],
-                ["椅子", "yǐzi", "chair", "椅子在桌子旁边。", "Yǐzi zài zhuōzi pángbiān. - The chair is next to the table."],
-                ["一点儿", "yīdiǎnr", "a little bit", "我会说一点儿汉语。", "Wǒ huì shuō yìdiǎnr hànyǔ. - I can speak a little bit of Chinese."],
-                ["一些", "yīxiē", "some", "我买了一些水果。", "Wǒ mǎi le yìxiē shuǐguǒ. - I bought some fruit."],
-                ["有", "yǒu", "to have", "我有九本书。", "Wǒ yǒu jiǔ běn shū. - I have 9 books."],
-                ["有的", "yǒude", "some", "有的学生没来。", "Yǒude xuésheng méi lái. - Some students didn't come."],
-                ["有点儿", "yǒudiǎnr", "a bit / slightly", "今天天气有点儿冷。", "Jīntiān tiānqì yǒudiǎnr lěng. - The weather is a bit cold today."],
-                ["有些", "yǒuxiē", "some", "有些话不能说。", "Yǒuxiē huà bù néng shuō. - Some things cannot be said."],
-                ["雨", "yǔ", "rain", "外面在下大雨。", "Wàimiàn zài xià dà yǔ. - It is raining heavily outside."],
-                ["元", "yuán", "yuan (currency)", "这个手机三千元。", "Zhè ge shǒujī sān qiān yuán. - This phone is 3000 yuan."],
-                ["月", "yuè", "month / moon", "一年有十二个月。", "Yì nián yǒu shí'èr gè yuè. - A year has 12 months."],
-                ["再", "zài", "again", "请再说一次。", "Qǐng zài shuō yí cì. - Please say it again."],
-                ["在", "zài", "at / in / on", "我在学校看书。", "Wǒ zài xuéxiào kànshū. - I am reading books at school."],
-                ["再见", "zàijiàn", "goodbye", "老师，再见！", "Lǎoshī, zàijiàn! - Goodbye, teacher!"],
-                ["早", "zǎo", "early", "你来得很早。", "Nǐ lái de hěn zǎo. - You arrived very early."],
-                ["早饭", "zǎofàn", "breakfast", "我不吃早饭。", "Wǒ bù chī zǎofàn. - I don't eat breakfast."],
-                ["早上", "zǎoshang", "morning", "早上我很忙。", "Zǎoshang wǒ hěn máng. - I am very busy in the morning."],
-                ["怎么", "zěnme", "how", "这个字怎么写？", "Zhè ge zì zěnme xiě? - How is this character written?"],
-                ["怎么样", "zěnmeyàng", "how is it", "今天天气怎么样？", "Jīntiān tiānqì zěnmeyàng? - How is the weather today?"],
-                ["找", "zhǎo", "to look for", "我在找我的手机。", "Wǒ zài zhǎo wǒ de shǒujī. - I am looking for my phone."],
-                ["这", "zhè", "this", "这是一部好电影。", "Zhè  shì yí bù hǎo diànyǐng. - This is a good movie."],
-                ["这边", "zhèbiān", "this side / here", "请来这边坐。", "Qǐng lái zhèbiān zuò. - Please come and sit here."],
-                ["这个", "zhège", "this one", "这个苹果很大。", "Zhè ge píngguǒ hěn dà. - This apple is very big."],
-                ["这里", "zhèlǐ", "here", "这里有很多商店。", "Zhèlǐ yǒu hěn duō shāngdiàn. - There are many stores here."],
-                ["这儿", "zhèr", "here", "他不在这儿。", "Tā bú zài zhèr. - He is not here."],
-                ["这些", "zhèxiē", "these", "这些书是我的。", "Zhèxiē shū shì wǒ de. - These books are mine."],
-                ["真", "zhēn", "really / truly", "今天真热！", "Jīntiān zhēn rè! - Today is really hot!"],
-                ["正在", "zhèngzài", "in process of", "我们正在上课。", "Wǒmen zhèngzài shàngkè. - We are currently in class."],
-                ["只", "zhī", "measure word (animals)", "我有一只小狗。", "Wǒ yǒu yì zhī xiǎo gǒu. - I have a small dog."],
-                ["知道", "zhīdao", "to know", "我知道他的名字。", "Wǒ zhīdao tā de míngzi. - I know his name."],
-                ["中国", "Zhōngguó", "China", "中国很大。", "Zhōngguó hěn dà. - China is very big."],
-                ["中文", "Zhōngwén", "Chinese language", "他学中文学了一年。", "Tā xué Zhōngwén xué le yì nián. - He studied Chinese for a year."],
-                ["中午", "zhōngwǔ", "noon", "中午我们吃饺子。", "Zhōngwǔ wǒmen chī jiǎozi. - We eat dumplings at noon."],
-                ["中学", "zhōngxué", "middle school", "弟弟上中学了。", "Dìdi shàng zhōngxué le. - My younger brother went to middle school."],
-                ["中学生", "zhōngxuéshēng", "middle school student", "她是中学生。", "Tā  shì zhōngxuéshēng. - She is a middle school student."],
-                ["住", "zhù", "to live / stay", "你住哪儿？", "Nǐ zhù nǎr? - Where do you live?"],
-                ["桌子", "zhuōzi", "table / desk", "书在桌子上。", "Shū zài zhuōzi shàng. - The book is on the table."],
-                ["字", "zì", "character / word", "我会写中国字。", "Wǒ huì xiě Zhōngguó zì. - I can write Chinese characters."],
-                ["昨天", "zuótiān", "yesterday", "昨天我去了超市。", "Zuótiān wǒ qù le chāoshì. - Yesterday I went to the supermarket."],
-                ["坐", "zuò", "to sit", "请坐下喝茶。", "Qǐng zuò xià hē chá. - Please sit down and drink tea."],
-                ["做", "zuò", "to do / make", "你在做什么？", "Nǐ zài zuò shénme? - What are you doing?"],
-                ["做饭", "zuò fàn", "to cook", "妈妈在做饭。", "Māma zài zuò fàn. - Mom is cooking."],
-                ["右边", "yòubiān", "right side", "他在我的右边。", "Tā zài wǒ de yòubiān. - He is on my right side."]
+                ["外", "wài", "outside", "在外面。(Zài wàimiàn. - Outside.)"],
+                ["完", "wán", "finish", "做完了。(Zuò wán le. - Finished doing.)"],
+                ["玩", "wán", "play", "出去玩。(Chūqù wán. - Go out to play.)"],
+                ["晚上", "wǎnshang", "evening", "晚上好。(Wǎnshang hǎo. - Good evening.)"],
+                ["为什么", "wèishénme", "why", "为什么不去？(Wèishénme bù qù? - Why not go?)"],
+                ["问", "wèn", "ask", "问老师。(Wèn lǎoshī. - Ask the teacher.)"],
+                ["问题", "wèntí", "problem / question", "没问题。(Méi wèntí. - No problem.)"],
+                ["西瓜", "xīguā", "watermelon", "吃西瓜。(Chī xīguā. - Eat watermelon.)"],
+                ["希望", "xīwàng", "hope", "我希望你能来。(Wǒ xīwàng nǐ néng lái. - I hope you can come.)"],
+                ["洗", "xǐ", "wash", "洗手。(Xǐ shǒu. - Wash hands.)"],
+                ["向", "xiàng", "towards", "向前走。(Xiàng qián zǒu. - Walk forward.)"],
+                ["小时", "xiǎoshí", "hour", "一个小时。(Yí ge xiǎoshí. - One hour.)"],
+                ["笑", "xiào", "laugh / smile", "他在笑。(Tā zài xiào. - He is laughing.)"],
+                ["新", "xīn", "new", "新衣服。(Xīn yīfu. - New clothes.)"],
+                ["姓", "xìng", "surname", "我姓王。(Wǒ xìng Wáng. - My surname is Wang.)"],
+                ["休息", "xiūxi", "rest", "休息一下。(Xiūxi yí xià. - Rest a bit.)"],
+                ["雪", "xuě", "snow", "下雪了。(Xià xuě le. - It's snowing.)"],
+                ["颜色", "yánsè", "color", "什么颜色？(Shénme yánsè? - What color?)"],
+                ["眼睛", "yǎnjing", "eyes", "黑色的眼睛。(Hēisè de yǎnjing. - Black eyes.)"],
+                ["羊肉", "yángròu", "mutton", "吃羊肉。(Chī yángròu. - Eat mutton.)"],
+                ["药", "yào", "medicine", "吃药。(Chī yào. - Take medicine.)"],
+                ["要", "yào", "want / to need", "我要这个。(Wǒ yào zhè ge. - I want this.)"],
+                ["也", "yě", "also", "我也去。(Wǒ yě qù. - I also go.)"],
+                ["已经", "yǐjīng", "already", "已经走了。(Yǐjīng zǒu le. - Already left.)"],
+                ["一起", "yìqǐ", "together", "我们一起去。(Wǒmen yìqǐ qù. - Let's go together.)"],
+                ["意思", "yìsi", "meaning", "什么意思？(Shénme yìsi? - What meaning?)"],
+                ["因为", "yīnwèi", "because", "因为下雨...(Yīnwèi xià yǔ... - Because it is raining...)"],
+                ["所以", "suǒyǐ", "so / therefore", "所以我没去。(Suǒyǐ wǒ méi qù. - So I didn't go.)"],
+                ["阴", "yīn", "cloudy", "今天是阴天。(Jīntiān shì yīn tiān. - Today is cloudy.)"],
+                ["游泳", "yóuyǒng", "swim", "去游泳。(Qù yóuyǒng. - Go swimming.)"],
+                ["右边", "yòubian", "right side", "在右边。(Zài yòubian. - On the right side.)"],
+                ["鱼", "yú", "fish", "吃鱼。(Chī yú. - Eat fish.)"],
+                ["远", "yuǎn", "far", "很远。(Hěn yuǎn. - Very far.)"],
+                ["运动", "yùndòng", "sports / exercise", "做运动。(Zuò yùndòng. - Do sports.)"],
+                ["再", "zài", "again", "再说一次。(Zài shuō yí cì. - Say it again.)"],
+                ["早上", "zǎoshang", "morning", "早上好。(Zǎoshang hǎo. - Good morning.)"],
+                ["丈夫", "zhàngfu", "husband", "我的丈夫。(Wǒ de zhàngfu. - My husband.)"],
+                ["找", "zhǎo", "look for", "找朋友。(Zhǎo péngyou. - Look for a friend.)"],
+                ["着", "zhe", "particle (continuous)", "开着门。(Kāi zhe mén. - The door is open.)"],
+                ["真", "zhēn", "really", "真漂亮。(Zhēn piàoliang. - Really pretty.)"],
+                ["正在", "zhèngzài", "in the process of", "正在吃饭。(Zhèngzài chī fàn. - Currently eating.)"],
+                ["知道", "zhīdào", "know", "我不知道。(Wǒ bù zhīdào. - I don't know.)"],
+                ["准备", "zhǔnbèi", "prepare", "准备考试。(Zhǔnbèi kǎoshì. - Prepare for an exam.)"],
+                ["自行车", "zìxíngchē", "bicycle", "骑自行车。(Qí zìxíngchē. - Ride a bike.)"],
+                ["走", "zǒu", "walk / leave", "我们走吧。(Wǒmen zǒu ba. - Let's go.)"],
+                ["最", "zuì", "most", "最好。(Zuì hǎo. - The best.)"],
+                ["左边", "zuǒbian", "left side", "在左边。(Zài zuǒbian. - On the left side.)"],
+                ["帮忙", "bāngmáng", "to help", "请帮个忙。(Qǐng bāng ge máng. - Please help me out.)"],
+                ["包子", "bāozi", "steamed stuffed bun", "吃包子。(Chī bāozi. - Eat steamed buns.)"],
+                ["半", "bàn", "half", "一半。(Yí bàn. - One half.)"]
             ]
         };
 
-        // Dynamically generate the test database to avoid syntax errors and provide unlimited randomized practice
-        const testDatabase = {};
-        for (let b = 1; b <= 6; b++) {
-            const data = hskData[b];
-            if (!data) continue;
-            
-            // Helper to get a randomized array
-            const getRandom = (arr) => [...arr].sort(() => 0.5 - Math.random());
-            
-            // Generate 40 questions by repeating the batch data safely if needed
-            let sample = getRandom(data);
-            while (sample.length < 40) {
-                sample = sample.concat(getRandom(data));
-            }
-            
-            testDatabase[b] = {
-                title: `Batch ${b} Cumulative Test`,
-                desc: `Complete all 40 questions to verify your mastery of Batch ${b}.`,
-                s1: sample.slice(0, 8).map(item => ({ q: item[3], a: [item[4].split(' - ')[1] || item[2], "Alternative option"] })),
-                s2: sample.slice(8, 16).map((item, i) => ({ num: i + 9, pin: item[1], ph: "English translation..." })),
-                s3: sample.slice(16, 24).map((item, i) => ({ num: i + 17, char: item[0], ph: "English translation..." })),
-                s4: sample.slice(24, 32).map((item, i) => ({ num: i + 25, eng: item[2], ph: "Chinese characters or pinyin..." })),
-                s5: sample.slice(32, 40).map((item, i) => ({ num: i + 33, eng: (item[4].split(' - ')[1] || item[2]), ph: "Type Chinese sentence..." }))
-            };
-        }
+        let currentBatch = 1;
 
-        // Pre-load voices into memory for Android Chrome
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.onvoiceschanged = function() {
-                window.speechSynthesis.getVoices();
-            };
-        }
-
-        window.onload = function() {
-            switchBatch(1);
-        };
-
-        function switchBatch(batchNum) {
-            currentBatch = batchNum;
-            
-            // Highlight active navigation tab
+        function initTabs() {
+            const container = document.getElementById('tabContainer');
+            container.innerHTML = '';
             for (let i = 1; i <= 6; i++) {
-                const btn = document.getElementById(`btn-batch-${i}`);
-                if (btn) {
-                    if (i === batchNum) {
-                        btn.className = "px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow-md hover:bg-blue-700 transition-all duration-150 border border-blue-600";
-                    } else {
-                        btn.className = "px-6 py-3 font-bold rounded-lg transition-all duration-150 shadow-sm border border-gray-200 bg-white text-gray-700 hover:bg-gray-50";
-                    }
-                }
+                const btn = document.createElement('button');
+                btn.innerText = `Batch ${i}`;
+                btn.className = `px-4 py-2 rounded-full font-medium transition-colors duration-200 ${currentBatch === i ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'}`;
+                btn.onclick = () => {
+                    currentBatch = i;
+                    initTabs();
+                    renderBatch();
+                };
+                container.appendChild(btn);
             }
-
-            // Update Header labels
-            document.getElementById('dashboard-title').innerText = `HSK 3.1 (2026) Level 1 Mastery Suite - Batch ${batchNum}`;
-            document.getElementById('dashboard-subtitle').innerText = `Batch ${batchNum}: Words ${((batchNum - 1) * 50) + 1} to ${batchNum * 50}. Core characters, pinyin, and layered examples.`;
-
-            // Populate Vocabulary List
-            populateVocabulary(batchNum);
-
-            // Populate Test Content
-            populateTest(batchNum);
         }
 
-        function populateVocabulary(batchNum) {
-            const data = hskData[batchNum];
-            const listContainer = document.getElementById('vocab-list');
-            listContainer.innerHTML = '';
+        function renderBatch() {
+            const vocabList = vocabularyDB[currentBatch];
+            const vocabContainer = document.getElementById('vocabContainer');
+            vocabContainer.innerHTML = '';
 
-            data.forEach(item => {
+            vocabList.forEach(item => {
+                const [char, pinyin, meaning, example] = item;
+                
+                const exParts = example.split('(');
+                const exChn = exParts[0].trim();
+                const exEng = exParts[1] ? '(' + exParts[1] : '';
+
                 const row = document.createElement('div');
-                // Clean 4-column Grid layout matching exactly the width and column sizes: grid-cols-[1.2fr_1.2fr_1.2fr_2.5fr]
-                row.className = "grid grid-cols-[1.2fr_1.2fr_1.2fr_2.5fr] gap-4 items-center p-5 border-b border-gray-200 hover:bg-blue-50 transition-colors";
+                row.className = 'p-4 md:p-4 table-grid items-start border-b border-slate-100 hover:bg-slate-50 transition-colors';
                 
                 row.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <span class="text-2xl md:text-3xl font-extrabold text-gray-950">${item[0]}</span>
-                        <button onclick="playAudio('${item[0]}')" class="text-blue-500 hover:text-blue-700 text-2xl focus:outline-none" title="Play Character">🔊</button>
+                    <div class="flex items-center gap-2 mb-2 md:mb-0">
+                        <span class="text-xl font-bold text-slate-800">${char}</span>
+                        <button onclick="playAudio('${char}')" class="text-xl hover:scale-110 transition-transform" title="Listen">🔊</button>
                     </div>
-                    <div class="text-lg md:text-xl font-medium text-gray-800">${item[1]}</div>
-                    <div class="text-base md:text-lg text-gray-600 font-medium">${item[2]}</div>
-                    <div class="flex items-center justify-between gap-3">
-                        <!-- Example layout explicitly stacked vertically: Chinese (bold/neutral) on Top, Pinyin/English (dark blue) below -->
-                        <div class="flex flex-col">
-                            <span class="text-lg font-bold text-gray-950">${item[3]}</span>
-                            <span class="text-sm font-medium text-blue-900 mt-1">${item[4]}</span>
+                    <div class="text-blue-600 mb-1 md:mb-0">${pinyin}</div>
+                    <div class="text-slate-600 mb-3 md:mb-0">${meaning}</div>
+                    
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-2">
+                            <span class="text-lg font-bold text-slate-800">${exChn}</span>
+                            <button onclick="playAudio('${exChn}')" class="text-lg hover:scale-110 transition-transform" title="Listen">🔊</button>
                         </div>
-                        <button onclick="playAudio('${item[3]}')" class="text-blue-500 hover:text-blue-700 text-2xl shrink-0 focus:outline-none" title="Play Sentence">🔊</button>
+                        
+                        ${exEng ? `
+                        <div class="mt-2">
+                            <div class="inline-block cursor-pointer bg-slate-200 hover:bg-slate-300 text-slate-500 text-xs px-3 py-1.5 rounded-md transition-colors" 
+                                 onclick="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden')">
+                                👁️ Tap to reveal translation
+                            </div>
+                            <div class="hidden cursor-pointer bg-blue-50 text-blue-900 text-sm px-3 py-2 rounded-md border border-blue-100"
+                                 onclick="this.classList.add('hidden'); this.previousElementSibling.classList.remove('hidden')"
+                                 title="Tap to hide">
+                                ${exEng}
+                            </div>
+                        </div>
+                        ` : ''}
                     </div>
                 `;
-                listContainer.appendChild(row);
+                vocabContainer.appendChild(row);
             });
+
+            generateDynamicTest(vocabList);
         }
 
-        function populateTest(batchNum) {
-            const test = testDatabase[batchNum];
-            const testContainer = document.getElementById('dynamic-test-section');
-            
-            let s1Html = '';
-            test.s1.forEach((item, index) => {
-                s1Html += `
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:shadow-sm transition-shadow">
+        function generateDynamicTest(vocabList) {
+            document.getElementById('testTitle').innerText = `Cumulative Test (Batch ${currentBatch})`;
+            const testContent = document.getElementById('testContent');
+            testContent.innerHTML = '';
+
+            let s1HTML = `<div class="mb-8"><h3 class="font-bold text-lg mb-4 border-b pb-2">1. Listening Comprehension</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+            vocabList.slice(0, 8).forEach((item, index) => {
+                s1HTML += `
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <p class="text-sm text-slate-500 mb-2">Question ${index + 1}</p>
                         <div class="flex items-center gap-3">
-                            <span class="font-bold text-blue-800 w-6">${index + 1}.</span>
-                            <button onclick="playAudio('${item.q}')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded font-semibold text-sm transition-colors">🔊 Listen Prompt</button>
+                            <button onclick="playAudio('${item[3].split('(')[0]}')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow-sm text-sm transition-colors">Listen</button>
+                            <select class="border rounded p-2 text-sm flex-1">
+                                <option>Select Meaning...</option>
+                                <option>${item[2]}</option>
+                                <option>Incorrect Option</option>
+                            </select>
                         </div>
-                        <select id="s1-ans-${index}" class="border border-gray-300 p-2 rounded flex-1 md:max-w-md focus:ring-2 focus:ring-blue-400 focus:outline-none bg-white font-medium text-gray-700">
-                            <option value="">-- Choose matching translation --</option>
-                            <option value="${item.a[0]}">${item.a[0]}</option>
-                            <option value="${item.a[1]}">${item.a[1]}</option>
-                        </select>
-                    </div>
-                `;
+                    </div>`;
             });
+            s1HTML += `</div></div>`;
 
-            let s2Html = '';
-            test.s2.forEach(item => {
-                s2Html += `
-                    <div class="flex items-center gap-4 p-2 bg-gray-50 rounded-lg border border-gray-100">
-                        <span class="font-bold text-blue-800 w-8 text-right">${item.num}.</span>
-                        <span class="w-32 font-mono text-lg text-blue-900 font-semibold">${item.pin}</span>
-                        <input type="text" id="s2-ans-${item.num}" class="border border-gray-300 p-2 rounded flex-1 focus:ring-2 focus:ring-blue-400 focus:outline-none bg-white text-gray-800" placeholder="${item.ph}">
-                    </div>
-                `;
+            let s2HTML = `<div class="mb-8"><h3 class="font-bold text-lg mb-4 border-b pb-2">2. Translation (EN to CN)</h3><div class="space-y-4">`;
+            vocabList.slice(8, 16).forEach((item, index) => {
+                s2HTML += `
+                    <div>
+                        <p class="mb-2">"${item[2]}"</p>
+                        <input type="text" placeholder="Type Chinese here..." class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>`;
             });
+            s2HTML += `</div></div>`;
 
-            let s3Html = '';
-            test.s3.forEach(item => {
-                s3Html += `
-                    <div class="flex items-center gap-4 p-2 bg-gray-50 rounded-lg border border-gray-100">
-                        <span class="font-bold text-blue-800 w-8 text-right">${item.num}.</span>
-                        <span class="w-32 text-xl font-bold text-gray-900">${item.char}</span>
-                        <input type="text" id="s3-ans-${item.num}" class="border border-gray-300 p-2 rounded flex-1 focus:ring-2 focus:ring-blue-400 focus:outline-none bg-white text-gray-800" placeholder="${item.ph}">
-                    </div>
-                `;
+            let s3HTML = `<div class="mb-8"><h3 class="font-bold text-lg mb-4 border-b pb-2">3. Character Recognition</h3><div class="grid grid-cols-2 md:grid-cols-4 gap-4">`;
+            vocabList.slice(16, 24).forEach((item, index) => {
+                s3HTML += `
+                    <div class="text-center p-4 border rounded-lg bg-slate-50">
+                        <p class="text-2xl font-bold mb-2">${item[0]}</p>
+                        <input type="text" placeholder="Pinyin..." class="w-full border p-1 rounded text-sm text-center">
+                    </div>`;
             });
+            s3HTML += `</div></div>`;
 
-            let s4Html = '';
-            test.s4.forEach(item => {
-                s4Html += `
-                    <div class="flex items-center gap-4 p-2 bg-gray-50 rounded-lg border border-gray-100">
-                        <span class="font-bold text-blue-800 w-8 text-right">${item.num}.</span>
-                        <span class="w-48 font-medium text-gray-800">${item.eng}</span>
-                        <input type="text" id="s4-ans-${item.num}" class="border-b-2 border-blue-300 p-2 flex-1 focus:border-blue-600 focus:outline-none bg-transparent text-gray-950 font-bold" placeholder="${item.ph}">
-                    </div>
-                `;
-            });
-
-            let s5Html = '';
-            test.s5.forEach(item => {
-                s5Html += `
-                    <div class="flex flex-col md:flex-row md:items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
-                        <span class="font-bold text-blue-800 w-8">${item.num}.</span>
-                        <span class="w-64 font-medium text-gray-800">${item.eng}</span>
-                        <input type="text" id="s5-ans-${item.num}" class="border border-gray-300 p-2 rounded flex-1 focus:ring-2 focus:ring-blue-400 focus:outline-none bg-white text-gray-950 font-bold" placeholder="${item.ph}">
-                    </div>
-                `;
-            });
-
-            testContainer.innerHTML = `
-                <h2 class="text-3xl font-extrabold text-gray-900 mb-2">${test.title}</h2>
-                <p class="text-gray-600 mb-8 text-base md:text-lg">${test.desc}</p>
-                
-                <!-- Section 1 -->
-                <div class="mb-8 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                    <h3 class="text-xl md:text-2xl font-bold text-blue-800 mb-4 border-b pb-2">1. Listening Comprehension (1-8)</h3>
-                    <p class="text-gray-500 mb-4 text-sm font-medium">Click the audio button to listen, then select the correct English translation from the dropdown.</p>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        ${s1Html}
-                    </div>
-                </div>
-
-                <!-- Section 2 -->
-                <div class="mb-8 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                    <h3 class="text-xl md:text-2xl font-bold text-blue-800 mb-4 border-b pb-2">2. Pinyin to English (9-16)</h3>
-                    <p class="text-gray-500 mb-4 text-sm font-medium">Type the correct English translation for each Pinyin representation.</p>
-                    <div class="grid md:grid-cols-2 gap-x-8 gap-y-4">
-                        ${s2Html}
-                    </div>
-                </div>
-
-                <!-- Section 3 -->
-                <div class="mb-8 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                    <h3 class="text-xl md:text-2xl font-bold text-blue-800 mb-4 border-b pb-2">3. Character Translation (17-24)</h3>
-                    <p class="text-gray-500 mb-4 text-sm font-medium">Identify the meaning of these written Chinese characters.</p>
-                    <div class="grid md:grid-cols-2 gap-x-8 gap-y-4">
-                        ${s3Html}
-                    </div>
-                </div>
-
-                <!-- Section 4 -->
-                <div class="mb-8 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                    <h3 class="text-xl md:text-2xl font-bold text-blue-800 mb-4 border-b pb-2">4. English to Chinese (25-32)</h3>
-                    <p class="text-gray-500 mb-4 text-sm font-medium">Type the Chinese characters or Pinyin equivalents for the given English translation.</p>
-                    <div class="grid md:grid-cols-2 gap-x-8 gap-y-4">
-                        ${s4Html}
-                    </div>
-                </div>
-
-                <!-- Section 5 -->
-                <div class="mb-8 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                    <h3 class="text-xl md:text-2xl font-bold text-blue-800 mb-4 border-b pb-2">5. Sentence Building & Grammar (33-40)</h3>
-                    <p class="text-gray-500 mb-4 text-sm font-medium">Translate the English sentences into full written Chinese structures.</p>
+            let s4HTML = `
+                <div class="mb-8">
+                    <h3 class="font-bold text-lg mb-4 border-b pb-2">4. Grammar (Fill in the blanks)</h3>
                     <div class="space-y-4">
-                        ${s5Html}
-                    </div>
-                </div>
-
-                <!-- Action Button -->
-                <div class="text-center mt-8">
-                    <button onclick="revealAnswers()" class="px-8 py-3 bg-blue-600 text-white font-extrabold rounded-lg shadow-lg hover:bg-blue-700 hover:shadow-xl transition-all duration-150">Grade Test & Show Answers</button>
-                    <p id="grade-summary" class="mt-4 text-xl font-bold text-green-700 hidden"></p>
-                </div>
             `;
-        }
-
-        // Create a single, reusable audio element to comply with mobile media policies
-        const globalAudioPlayer = new Audio();
-
-        function playAudio(text) {
-            // Clean text (strips out any English translations separated by hyphens)
-            const cleanText = text.split('-')[0].trim();
-
-            // Mobile Browser Fix: Browsers block .play() if it is delayed by async checks or setTimeouts.
-            // It MUST be called synchronously during the button click.
-            // We use Cloud TTS as the primary engine to bypass native Android OS bugs entirely.
-            const url = 'https://translate.google.com/translate_tts?ie=UTF-8&tl=zh-CN&client=tw-ob&q=' + encodeURIComponent(cleanText);
-            
-            globalAudioPlayer.src = url;
-            globalAudioPlayer.play().catch(err => {
-                console.warn("Cloud TTS failed or blocked. Falling back to native device TTS.", err);
-                playNativeTTS(cleanText);
-            });
-        }
-
-        function playNativeTTS(text) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // Clear queue
-                const u = new SpeechSynthesisUtterance(text);
-                u.lang = 'zh-CN';
-                u.rate = 0.85; 
+            vocabList.slice(24, 32).forEach((item, index) => {
+                const exParts = item[3].split('(');
+                const cnText = exParts[0].trim();
+                const engText = exParts[1] ? exParts[1].replace(')', '') : '';
+                const blanchedText = cnText.replace(item[0], `<input type="text" class="w-16 border-b border-slate-400 outline-none px-1 text-center bg-transparent" placeholder="?">`);
                 
-                const voices = window.speechSynthesis.getVoices();
-                const zhVoice = voices.find(v => v.lang.includes('zh') || v.lang.toLowerCase().includes('cmn') || v.name.toLowerCase().includes('chinese'));
-                if (zhVoice) u.voice = zhVoice;
+                s4HTML += `<div>${index + 1}. ${blanchedText} <span class="text-slate-500 text-sm ml-2">(${engText})</span></div>`;
+            });
+            s4HTML += `</div></div>`;
 
-                // Android Garbage Collection bugfix: attach to window so it isn't deleted mid-sentence
-                window.mobileTtsHack = u; 
-                window.speechSynthesis.speak(u);
-            }
+            testContent.innerHTML = s1HTML + s2HTML + s3HTML + s4HTML;
         }
 
-        function revealAnswers() {
-            const summary = document.getElementById('grade-summary');
-            summary.innerText = "Assessment graded! Scroll through your inputs to check your answers against the vocabulary lists.";
-            summary.classList.remove('hidden');
-            summary.scrollIntoView({ behavior: 'smooth' });
-        }
+        window.onload = () => {
+            initTabs();
+            renderBatch();
+        };
     </script>
 </body>
 </html>
