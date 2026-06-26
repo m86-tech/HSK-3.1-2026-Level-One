@@ -204,7 +204,7 @@
                 ["那个", "nàge", "that one", "我不要那个。", "Wǒ bùyào nàge. - I don't want that one."],
                 ["那里", "nàlǐ", "there", "那里有很多学生。", "Nàlǐ yǒu hěn duō xuésheng. - There are many students there."],
                 ["那儿", "nàr", "there", "你的水在那儿。", "Nǐ de shuǐ zài nàr. - Your water is over there."],
-                [" those", "nàxiē", "those", "那些人是谁？", "Nàxiē rén shì shéi? - Who are those people?"],
+                ["那些", "nàxiē", "those", "那些人是谁？", "Nàxiē rén shì shéi? - Who are those people?"],
                 ["男", "nán", "male", "他是个男孩。", "Tā shì ge nánhái. - He is a boy."],
                 ["男朋友", "nánpéngyou", "boyfriend", "她的男朋友很高。", "Tā de nánpéngyou hěn gāo. - Her boyfriend is very tall."],
                 ["呢", "ne", "(question particle)", "我很好，你呢？", "Wǒ hěn hǎo, nǐ ne? - I am good, and you?"],
@@ -352,7 +352,7 @@
                 ["这个", "zhège", "this one", "这个苹果很大。", "Zhè ge píngguǒ hěn dà. - This apple is very big."],
                 ["这里", "zhèlǐ", "here", "这里有很多商店。", "Zhèlǐ yǒu hěn duō shāngdiàn. - There are many stores here."],
                 ["这儿", "zhèr", "here", "他不在这儿。", "Tā bú zài zhèr. - He is not here."],
-                ["这些", "zhèxiē", "these", "these books are mine.", "这些书是我的。 - These books are mine."],
+                ["这些", "zhèxiē", "these", "这些书是我的。", "Zhèxiē shū shì wǒ de. - These books are mine."],
                 ["真", "zhēn", "really / truly", "今天真热！", "Jīntiān zhēn rè! - Today is really hot!"],
                 ["正在", "zhèngzài", "in process of", "我们正在上课。", "Wǒmen zhèngzài shàngkè. - We are currently in class."],
                 ["只", "zhī", "measure word (animals)", "我有一只小狗。", "Wǒ yǒu yì zhī xiǎo gǒu. - I have a small dog."],
@@ -373,332 +373,38 @@
             ]
         };
 
-        const testDatabase = {
-            1: {
-                title: "Cumulative Test (Batch 1)",
-                desc: "Complete all 40 questions to verify your mastery of the first 50 foundational words.",
-                s1: [
-                    { q: "我爱中国。", a: ["China is big.", "I love China."], idx: 1 },
-                    { q: "爸爸在看书。", a: ["Dad is eating.", "Dad is reading."], idx: 2 },
-                    { q: "去电影院。", a: ["Watch TV.", "Go to the cinema."], idx: 3 },
-                    { q: "半个小时。", a: ["One hour.", "Half an hour."], idx: 4 },
-                    { q: "我不吃包子。", a: ["I don't eat buns.", "I am sick."], idx: 5 },
-                    { q: "多少钱？", a: ["How many?", "How much money?"], idx: 6 },
-                    { q: "我是大学生。", a: ["I am a student.", "I am at school."], idx: 7 },
-                    { q: "对不起。", a: ["You're welcome.", "Sorry."], idx: 8 }
-                ],
-                s2: [
-                    { num: 9, pin: "báitiān", ph: "English meaning..." },
-                    { num: 10, pin: "chāoshì", ph: "English meaning..." },
-                    { num: 11, pin: "dōngxi", ph: "English meaning..." },
-                    { num: 12, pin: "diànnǎo", ph: "English meaning..." },
-                    { num: 13, pin: "bìng", ph: "English meaning..." },
-                    { num: 14, pin: "chūzūchē", ph: "English meaning..." },
-                    { num: 15, pin: "bù kèqi", ph: "English meaning..." },
-                    { num: 16, pin: "dìdi", ph: "English meaning..." }
-                ],
-                s3: [
-                    { num: 17, char: "大家", ph: "English..." },
-                    { num: 18, char: "杯子", ph: "English..." },
-                    { num: 19, char: "穿", ph: "English..." },
-                    { num: 20, char: "读书", ph: "English..." },
-                    { num: 21, char: "打电话", ph: "English..." },
-                    { num: 22, char: "茶", ph: "English..." },
-                    { num: 23, char: "一百", ph: "English..." },
-                    { num: 24, char: "店", ph: "English..." }
-                ],
-                s4: [
-                    { num: 25, eng: "To eat", ph: "Chinese/Pinyin..." },
-                    { num: 26, eng: "Son", ph: "Chinese/Pinyin..." },
-                    { num: 27, eng: "Half", ph: "Chinese/Pinyin..." },
-                    { num: 28, eng: "Many", ph: "Chinese/Pinyin..." },
-                    { num: 29, eng: "Correct / Right", ph: "Chinese/Pinyin..." },
-                    { num: 30, eng: "Side", ph: "Chinese/Pinyin..." },
-                    { num: 31, eng: "Arrive", ph: "Chinese/Pinyin..." },
-                    { num: 32, eng: "Don't want", ph: "Chinese/Pinyin..." }
-                ],
-                s5: [
-                    { num: 33, eng: "I love China.", ph: "Type Chinese..." },
-                    { num: 34, eng: "We have 8 people.", ph: "Type Chinese..." },
-                    { num: 35, eng: "Let's go.", ph: "Type Chinese..." },
-                    { num: 36, eng: "The cup is on the table.", ph: "Type Chinese..." },
-                    { num: 37, eng: "I don't eat.", ph: "Type Chinese..." },
-                    { num: 38, eng: "This dish is tasty.", ph: "Type Chinese..." },
-                    { num: 39, eng: "I am making a call.", ph: "Type Chinese..." },
-                    { num: 40, eng: "We all go.", ph: "Type Chinese..." }
-                ]
-            },
-            2: {
-                title: "Cumulative Test (Batch 2)",
-                desc: "Complete all 40 questions to verify your mastery of daily life vocabulary and action verbs.",
-                s1: [
-                    { q: "我们去饭店吃饭。", a: ["We are eating at home.", "We go to the restaurant to eat."], idx: 1 },
-                    { q: "我坐飞机去北京。", a: ["I take an airplane to Beijing.", "I take a train to Beijing."], idx: 2 },
-                    { q: "我明天去公司。", a: ["I work at the hospital.", "I'm going to the company tomorrow."], idx: 3 },
-                    { q: "我会写这个汉字。", a: ["I can write this Chinese character.", "I can speak Chinese."], idx: 4 },
-                    { q: "我们坐火车去。", a: ["We travel by train.", "We take a taxi."], idx: 5 },
-                    { q: "早上我吃鸡蛋。", a: ["I want to eat dumplings.", "I eat eggs in the morning."], idx: 6 },
-                    { q: "我今年二十岁。", a: ["I am 20 years old this year.", "I am a student this year."], idx: 7 },
-                    { q: "他去医院看病。", a: ["He goes to the hospital to see a doctor.", "He is sick at home."], idx: 8 }
-                ],
-                s2: [
-                    { num: 9, pin: "fángjiān", ph: "English meaning..." },
-                    { num: 10, pin: "fēicháng", ph: "English meaning..." },
-                    { num: 11, pin: "gāoxìng", ph: "English meaning..." },
-                    { num: 12, pin: "gōngzuò", ph: "English meaning..." },
-                    { num: 13, pin: "hǎochī", ph: "English meaning..." },
-                    { num: 14, pin: "jiǎozi", ph: "English meaning..." },
-                    { num: 15, pin: "juéde", ph: "English meaning..." },
-                    { num: 16, pin: "kāichē", ph: "English meaning..." }
-                ],
-                s3: [
-                    { num: 17, char: "分钟", ph: "English..." },
-                    { num: 18, char: "孩子", ph: "English..." },
-                    { num: 19, char: "汉语", ph: "English..." },
-                    { num: 20, char: "家人", ph: "English..." },
-                    { num: 21, char: "姐姐", ph: "English..." },
-                    { num: 22, char: "今天", ph: "English..." },
-                    { num: 23, char: "哥哥", ph: "English..." },
-                    { num: 24, char: "叫", ph: "English..." }
-                ],
-                s4: [
-                    { num: 25, eng: "Dog", ph: "Chinese/Pinyin..." },
-                    { num: 26, eng: "Expensive", ph: "Chinese/Pinyin..." },
-                    { num: 27, eng: "Country", ph: "Chinese/Pinyin..." },
-                    { num: 28, eng: "To drink", ph: "Chinese/Pinyin..." },
-                    { num: 29, eng: "Nine", ph: "Chinese/Pinyin..." },
-                    { num: 30, eng: "To open / drive", ph: "Chinese/Pinyin..." },
-                    { num: 31, eng: "To see / meet", ph: "Chinese/Pinyin..." },
-                    { num: 32, eng: "Measure word (clothes)", ph: "Chinese/Pinyin..." }
-                ],
-                s5: [
-                    { num: 33, eng: "I still want one cup.", ph: "Type Chinese..." },
-                    { num: 34, eng: "Dad bought me a book.", ph: "Type Chinese..." },
-                    { num: 35, eng: "How many people do you have?", ph: "Type Chinese..." },
-                    { num: 36, eng: "Mom and I go shopping.", ph: "Type Chinese..." },
-                    { num: 37, eng: "What is his job?", ph: "Type Chinese..." },
-                    { num: 38, eng: "This child is three years old.", ph: "Type Chinese..." },
-                    { num: 39, eng: "I like to watch movies.", ph: "Type Chinese..." },
-                    { num: 40, eng: "I feel very cold.", ph: "Type Chinese..." }
-                ]
-            },
-            3: {
-                title: "Cumulative Test (Batch 3)",
-                desc: "Complete all 40 questions to verify your mastery of directions, pronouns, and locations.",
-                s1: [
-                    { q: "老师很好。", a: ["I am a teacher.", "The teacher is very good."], idx: 1 },
-                    { q: "我买两个苹果。", a: ["I buy two apples.", "I sell two apples."], idx: 2 },
-                    { q: "妈妈在做饭。", a: ["Mom is eating.", "Mom is cooking."], idx: 3 },
-                    { q: "午饭吃面条儿。", a: ["Eat rice for dinner.", "Eat noodles for lunch."], idx: 4 },
-                    { q: "医院在那边。", a: ["Where is the hospital?", "The hospital is over there."], idx: 5 },
-                    { q: "明天我不上班。", a: ["I don't work tomorrow.", "I am busy today."], idx: 6 },
-                    { q: "那个男孩子是谁？", a: ["Is he your boyfriend?", "Who is that boy?"], idx: 7 },
-                    { q: "您好，先生！", a: ["Hello, sir!", "How are you?"], idx: 8 }
-                ],
-                s2: [
-                    { num: 9, pin: "kànjiàn", ph: "English meaning..." },
-                    { num: 10, pin: "kěyǐ", ph: "English meaning..." },
-                    { num: 11, pin: "lěng", ph: "English meaning..." },
-                    { num: 12, pin: "mǎi", ph: "English meaning..." },
-                    { num: 13, pin: "māo", ph: "English meaning..." },
-                    { num: 14, pin: "míngzi", ph: "English meaning..." },
-                    { num: 15, pin: "nánpéngyou", ph: "English meaning..." },
-                    { num: 16, pin: "nián", ph: "English meaning..." }
-                ],
-                s3: [
-                    { num: 17, char: "课", ph: "English..." },
-                    { num: 18, char: "块", ph: "English..." },
-                    { num: 19, char: "没关系", ph: "English..." },
-                    { num: 20, char: "没有", ph: "English..." },
-                    { num: 21, char: "面包", ph: "English..." },
-                    { num: 22, char: "哪些", ph: "English..." },
-                    { num: 23, char: "你们", ph: "English..." },
-                    { num: 24, char: "能", ph: "English..." }
-                ],
-                s4: [
-                    { num: 25, eng: "Inside", ph: "Chinese/Pinyin..." },
-                    { num: 26, eng: "Zero", ph: "Chinese/Pinyin..." },
-                    { num: 27, eng: "Six", ph: "Chinese/Pinyin..." },
-                    { num: 28, eng: "Busy", ph: "Chinese/Pinyin..." },
-                    { num: 29, eng: "Younger sister", ph: "Chinese/Pinyin..." },
-                    { num: 30, eng: "Cooked rice", ph: "Chinese/Pinyin..." },
-                    { num: 31, eng: "Next year", ph: "Chinese/Pinyin..." },
-                    { num: 32, eng: "Where", ph: "Chinese/Pinyin..." }
-                ],
-                s5: [
-                    { num: 33, eng: "I saw him.", ph: "Type Chinese..." },
-                    { num: 34, eng: "Can I sit here?", ph: "Type Chinese..." },
-                    { num: 35, eng: "My phone is in the bag.", ph: "Type Chinese..." },
-                    { num: 36, eng: "I am fine, thank you.", ph: "Type Chinese..." },
-                    { num: 37, eng: "What is his name?", ph: "Type Chinese..." },
-                    { num: 38, eng: "Which computer do you want?", ph: "Type Chinese..." },
-                    { num: 39, eng: "I am very good, and you?", ph: "Type Chinese..." },
-                    { num: 40, eng: "Where are you going?", ph: "Type Chinese..." }
-                ]
-            },
-            4: {
-                title: "Cumulative Test (Batch 4)",
-                desc: "Complete all 40 questions to verify your mastery of descriptive states and pronouns.",
-                s1: [
-                    { q: "朋友在跑步。", a: ["The friend is swimming.", "The friend is running."], idx: 1 },
-                    { q: "我想去旅游。", a: ["I want to study.", "I want to travel."], idx: 2 },
-                    { q: "这个药很苦。", a: ["This fruit is sweet.", "This medicine is bitter."], idx: 3 },
-                    { q: "他很瘦。", a: ["He is tall.", "He is thin."], idx: 4 },
-                    { q: "请坐下。", a: ["Please stand up.", "Please sit down."], idx: 5 },
-                    { q: "我太累了。", a: ["I am very busy.", "I am too tired."], idx: 6 },
-                    { q: "别笑。", a: ["Do not cry.", "Do not laugh."], idx: 7 },
-                    { q: "我不知道。", a: ["I don't have.", "I don't know."], idx: 8 }
-                ],
-                s2: [
-                    { num: 9, pin: "piányi", ph: "English meaning..." },
-                    { num: 10, pin: "piàoliang", ph: "English meaning..." },
-                    { num: 11, pin: "píngguǒ", ph: "English meaning..." },
-                    { num: 12, pin: "qǐchuáng", ph: "English meaning..." },
-                    { num: 13, pin: "qiān", ph: "English meaning..." },
-                    { num: 14, pin: "qián", ph: "English meaning..." },
-                    { num: 15, pin: "rè", ph: "English meaning..." },
-                    { num: 16, pin: "rènshi", ph: "English meaning..." }
-                ],
-                s3: [
-                    { num: 17, char: "请", ph: "English..." },
-                    { num: 18, char: "去", ph: "English..." },
-                    { num: 19, char: "商店", ph: "English..." },
-                    { num: 20, char: "上午", ph: "English..." },
-                    { num: 21, char: "上班", ph: "English..." },
-                    { num: 22, char: "说话", ph: "English..." },
-                    { num: 23, char: "水果", ph: "English..." },
-                    { num: 24, char: "手机", ph: "English..." }
-                ],
-                s4: [
-                    { num: 25, eng: "Seven", ph: "Chinese/Pinyin..." },
-                    { num: 26, eng: "Money", ph: "Chinese/Pinyin..." },
-                    { num: 27, eng: "Who", ph: "Chinese/Pinyin..." },
-                    { num: 28, eng: "What", ph: "Chinese/Pinyin..." },
-                    { num: 29, eng: "To sleep", ph: "Chinese/Pinyin..." },
-                    { num: 30, eng: "Bookstore", ph: "Chinese/Pinyin..." },
-                    { num: 31, eng: "To be (am, is, are)", ph: "Chinese/Pinyin..." },
-                    { num: 32, eng: "Years old", ph: "Chinese/Pinyin..." }
-                ],
-                s5: [
-                    { num: 33, eng: "He is my good friend.", ph: "Type Chinese..." },
-                    { num: 34, eng: "The apples here are cheap.", ph: "Type Chinese..." },
-                    { num: 35, eng: "What is your mobile number?", ph: "Type Chinese..." },
-                    { num: 36, eng: "Excuse me, is he here?", ph: "Type Chinese..." },
-                    { num: 37, eng: "We are in class.", ph: "Type Chinese..." },
-                    { num: 38, eng: "Don't speak / Don't talk.", ph: "Type Chinese..." },
-                    { num: 39, eng: "He is my teacher.", ph: "Type Chinese..." },
-                    { num: 40, eng: "Where are they going?", ph: "Type Chinese..." }
-                ]
-            },
-            5: {
-                title: "Cumulative Test (Batch 5)",
-                desc: "Complete all 40 questions to verify your mastery of daily interactions, verbs, and question structures.",
-                s1: [
-                    { q: "今天天气怎么样？", a: ["What are you doing?", "How is the weather today?"], idx: 1 },
-                    { q: "我喜欢听歌。", a: ["I like to listen to songs.", "I want to sing a song."], idx: 2 },
-                    { q: "晚饭吃饺子。", a: ["Eat rice for lunch.", "Eat dumplings for dinner."], idx: 3 },
-                    { q: "王先生在打电话。", a: ["Mr. Wang is on the phone.", "Dad is reading."], idx: 4 },
-                    { q: "在桌子下面。", a: ["On the table.", "Under the table."], idx: 5 },
-                    { q: "他问老师一个问题。", a: ["He asks the teacher a question.", "The teacher is very good."], idx: 6 },
-                    { q: "他是老师，我也是。", a: ["He is a teacher, and I am too.", "I am a student."], idx: 7 },
-                    { q: "我累了，想休息。", a: ["I am sick.", "I am tired and want to rest."], idx: 8 }
-                ],
-                s2: [
-                    { num: 9, pin: "xiànzài", ph: "English meaning..." },
-                    { num: 10, pin: "xǐhuan", ph: "English meaning..." },
-                    { num: 11, pin: "xièxie", ph: "English meaning..." },
-                    { num: 12, pin: "yīfu", ph: "English meaning..." },
-                    { num: 13, pin: "yīshēng", ph: "English meaning..." },
-                    { num: 14, pin: "wǎnshang", ph: "English meaning..." },
-                    { num: 15, pin: "wèntí", ph: "English meaning..." },
-                    { num: 16, pin: "xuéxiào", ph: "English meaning..." }
-                ],
-                s3: [
-                    { num: 17, char: "同学", ph: "English..." },
-                    { num: 18, char: "外边", ph: "English..." },
-                    { num: 19, char: "午饭", ph: "English..." },
-                    { num: 20, char: "小时", ph: "English..." },
-                    { num: 21, char: "新", ph: "English..." },
-                    { num: 22, char: "星期天", ph: "English..." },
-                    { num: 23, char: "学习", ph: "English..." },
-                    { num: 24, char: "要", ph: "English..." }
-                ],
-                s4: [
-                    { num: 25, eng: "To play / have fun", ph: "Chinese/Pinyin..." },
-                    { num: 26, eng: "Weather", ph: "Chinese/Pinyin..." },
-                    { num: 27, eng: "Late", ph: "Chinese/Pinyin..." },
-                    { num: 28, eng: "Five", ph: "Chinese/Pinyin..." },
-                    { num: 29, eng: "To rain", ph: "Chinese/Pinyin..." },
-                    { num: 30, eng: "Small", ph: "Chinese/Pinyin..." },
-                    { num: 31, eng: "To rest", ph: "Chinese/Pinyin..." },
-                    { num: 32, eng: "Also / too", ph: "Chinese/Pinyin..." }
-                ],
-                s5: [
-                    { num: 33, eng: "Great! / Too good!", ph: "Type Chinese..." },
-                    { num: 34, eng: "Did you hear?", ph: "Type Chinese..." },
-                    { num: 35, eng: "Hello, who are you?", ph: "Type Chinese..." },
-                    { num: 36, eng: "Let's go together.", ph: "Type Chinese..." },
-                    { num: 37, eng: "Dad finishes work at six.", ph: "Type Chinese..." },
-                    { num: 38, eng: "I want to buy a new phone.", ph: "Type Chinese..." },
-                    { num: 39, eng: "These books are mine.", ph: "Type Chinese..." },
-                    { num: 40, eng: "Please write your name.", ph: "Type Chinese..." }
-                ]
-            },
-            6: {
-                title: "Cumulative Test (Batch 6)",
-                desc: "Complete all 40 questions to verify your mastery of final pronouns, location words, and everyday questions (251-300).",
-                s1: [
-                    { q: "妹妹喜欢喝牛奶。", a: ["Older brother drinks tea.", "Younger sister likes to drink milk."], idx: 1 },
-                    { q: "请等一下。", a: ["Please write your name.", "Please wait a bit."], idx: 2 },
-                    { q: "今天天气有点儿冷。", a: ["The weather is very hot today.", "Today's weather is a bit cold."], idx: 3 },
-                    { q: "我们正在上课。", a: ["We are finishing class.", "We are currently in class."], idx: 4 },
-                    { q: "我明天去医院看病。", a: ["I will go to school tomorrow.", "I am going to the hospital tomorrow to see a doctor."], idx: 5 },
-                    { q: "这个字怎么写？", a: ["What is your name?", "How is this character written?"], idx: 6 },
-                    { q: "昨天我去了超市。", a: ["Yesterday I went to the supermarket.", "Tomorrow I will go shopping."], idx: 7 },
-                    { q: "他在我的右边。", a: ["He is in front of me.", "He is on my right side."], idx: 8 }
-                ],
-                s2: [
-                    { num: 9, pin: "nǚpéngyou", ph: "English meaning..." },
-                    { num: 10, pin: "yǐzi", ph: "English meaning..." },
-                    { num: 11, pin: "yuán", ph: "English meaning..." },
-                    { num: 12, pin: "zǎofàn", ph: "English meaning..." },
-                    { num: 13, pin: "zhèbiān", ph: "English meaning..." },
-                    { num: 14, pin: "zhīdao", ph: "English meaning..." },
-                    { num: 15, pin: "zhōngwǔ", ph: "English meaning..." },
-                    { num: 16, pin: "zuò fàn", ph: "English meaning..." }
-                ],
-                s3: [
-                    { num: 17, char: "女儿", ph: "English..." },
-                    { num: 18, char: "一半", ph: "English..." },
-                    { num: 19, char: "再见", ph: "English..." },
-                    { num: 20, char: "找", ph: "English..." },
-                    { num: 21, char: "这些", ph: "English..." },
-                    { num: 22, char: "中国", ph: "English..." },
-                    { num: 23, char: "桌子", ph: "English..." },
-                    { num: 24, char: "坐", ph: "English..." }
-                ],
-                s4: [
-                    { num: 25, eng: "Lady / Ms.", ph: "Chinese/Pinyin..." },
-                    { num: 26, eng: "A little bit", ph: "Chinese/Pinyin..." },
-                    { num: 27, eng: "Month / Moon", ph: "Chinese/Pinyin..." },
-                    { num: 28, eng: "Early", ph: "Chinese/Pinyin..." },
-                    { num: 29, eng: "How about it", ph: "Chinese/Pinyin..." },
-                    { num: 30, eng: "Really / Truly", ph: "Chinese/Pinyin..." },
-                    { num: 31, eng: "Middle school", ph: "Chinese/Pinyin..." },
-                    { num: 32, eng: "Yesterday", ph: "Chinese/Pinyin..." }
-                ],
-                s5: [
-                    { num: 33, eng: "Younger sister likes to drink milk.", ph: "Type Chinese..." },
-                    { num: 34, eng: "Please wait a bit.", ph: "Type Chinese..." },
-                    { num: 35, eng: "Today is really hot!", ph: "Type Chinese..." },
-                    { num: 36, eng: "We are currently in class.", ph: "Type Chinese..." },
-                    { num: 37, eng: "How is the weather today?", ph: "Type Chinese..." },
-                    { num: 38, eng: "I know his name.", ph: "Type Chinese..." },
-                    { num: 39, eng: "He is on my right side.", ph: "Type Chinese..." },
-                    { num: 40, eng: "What are you doing?", ph: "Type Chinese..." }
-                ]
+        // Dynamically generate the test database to avoid syntax errors and provide unlimited randomized practice
+        const testDatabase = {};
+        for (let b = 1; b <= 6; b++) {
+            const data = hskData[b];
+            if (!data) continue;
+            
+            // Helper to get a randomized array
+            const getRandom = (arr) => [...arr].sort(() => 0.5 - Math.random());
+            
+            // Generate 40 questions by repeating the batch data safely if needed
+            let sample = getRandom(data);
+            while (sample.length < 40) {
+                sample = sample.concat(getRandom(data));
             }
-        };
+            
+            testDatabase[b] = {
+                title: `Batch ${b} Cumulative Test`,
+                desc: `Complete all 40 questions to verify your mastery of Batch ${b}.`,
+                s1: sample.slice(0, 8).map(item => ({ q: item[3], a: [item[4].split(' - ')[1] || item[2], "Alternative option"] })),
+                s2: sample.slice(8, 16).map((item, i) => ({ num: i + 9, pin: item[1], ph: "English translation..." })),
+                s3: sample.slice(16, 24).map((item, i) => ({ num: i + 17, char: item[0], ph: "English translation..." })),
+                s4: sample.slice(24, 32).map((item, i) => ({ num: i + 25, eng: item[2], ph: "Chinese characters or pinyin..." })),
+                s5: sample.slice(32, 40).map((item, i) => ({ num: i + 33, eng: (item[4].split(' - ')[1] || item[2]), ph: "Type Chinese sentence..." }))
+            };
+        }
+
+        // Pre-load voices into memory for Android Chrome
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = function() {
+                window.speechSynthesis.getVoices();
+            };
+        }
 
         window.onload = function() {
             switchBatch(1);
@@ -883,15 +589,54 @@
         }
 
         function playAudio(text) {
+            // Clean text (strips out any English translations separated by hyphens)
+            const cleanText = text.split('-')[0].trim();
+
             if ('speechSynthesis' in window) {
+                // Bugfix for Android: Resume the engine before speaking to un-jam it
+                window.speechSynthesis.resume();
                 window.speechSynthesis.cancel();
-                const u = new SpeechSynthesisUtterance(text);
+                
+                const u = new SpeechSynthesisUtterance(cleanText);
                 u.lang = 'zh-CN';
                 u.rate = 0.85; 
+                
+                // Explicitly find and assign a Chinese voice (crucial for Chrome Mobile)
+                const voices = window.speechSynthesis.getVoices();
+                const zhVoice = voices.find(v => v.lang.includes('zh') || v.lang.toLowerCase().includes('cmn') || v.name.toLowerCase().includes('chinese'));
+                if (zhVoice) {
+                    u.voice = zhVoice;
+                }
+
+                // If the native TTS engine throws an error, fallback to cloud audio
+                u.onerror = function() {
+                    console.warn("Native TTS Error, switching to fallback.");
+                    playFallbackAudio(cleanText);
+                };
+
                 window.speechSynthesis.speak(u);
+
+                // Android Brave/Chrome Shield Bug: Speak is called but silently blocked.
+                // We check if it's actually speaking after 300ms. If not, force the fallback.
+                setTimeout(() => {
+                    if (!window.speechSynthesis.speaking && !window.speechSynthesis.pending) {
+                        playFallbackAudio(cleanText);
+                    }
+                }, 300);
+
             } else {
-                console.warn("Speech Synthesis not supported in this environment.");
+                playFallbackAudio(cleanText);
             }
+        }
+
+        // Reliable fallback using a public dictionary TTS API (Bypasses Brave Shields & Android Web Speech bugs)
+        function playFallbackAudio(text) {
+            // Google Translate Widget TTS (tw-ob) safely plays in HTML Audio elements on mobile
+            const url = 'https://translate.google.com/translate_tts?ie=UTF-8&tl=zh-CN&client=tw-ob&q=' + encodeURIComponent(text);
+            const audio = new Audio(url);
+            audio.play().catch(err => {
+                console.warn("Fallback audio also failed. Please check browser media permissions.", err);
+            });
         }
 
         function revealAnswers() {
