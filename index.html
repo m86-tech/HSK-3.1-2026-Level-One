@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSK 3.1 Level 1 Mastery Suite Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold text-gray-900" id="dashboard-title">HSK 3.1 (2026) Level 1 Mastery Suite</h1>
+            <p class="text-lg text-gray-600 mt-3" id="dashboard-subtitle">Select a Batch below to access the full vocabulary list and comprehensive cumulative test.</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex flex-wrap justify-center gap-3 mb-8" id="batch-navigation">
+            <button onclick="switchBatch(1)" id="btn-batch-1" class="px-6 py-3 font-bold rounded-lg transition-all duration-150 shadow-sm border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">Batch 1 (1-50)</button>
+            <button onclick="switchBatch(2)" id="btn-batch-2" class="px-6 py-3 font-bold rounded-lg transition-all duration-150 shadow-sm border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">Batch 2 (51-100)</button>
+            <button onclick="switchBatch(3)" id="btn-batch-3" class="px-6 py-3 font-bold rounded-lg transition-all duration-150 shadow-sm border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">Batch 3 (101-150)</button>
+            <button onclick="switchBatch(4)" id="btn-batch-4" class="px-6 py-3 font-bold rounded-lg transition-all duration-150 shadow-sm border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">Batch 4 (151-200)</button>
+            <button onclick="switchBatch(5)" id="btn-batch-5" class="px-6 py-3 font-bold rounded-lg transition-all duration-150 shadow-sm border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">Batch 5 (201-250)</button>
+            <button onclick="switchBatch(6)" id="btn-batch-6" class="px-6 py-3 font-bold rounded-lg transition-all duration-150 shadow-sm border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">Batch 6 (251-300)</button>
+        </nav>
+
+        <!-- Main Content Area -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 mb-12">
+            
+            <!-- Table Header -->
+            <div class="bg-gray-100 border-b border-gray-200">
+                <div class="grid grid-cols-[1.2fr_1.2fr_1.2fr_2.5fr] gap-4 items-center p-5 font-bold text-gray-700 text-base md:text-lg uppercase tracking-wider">
+                    <div>Character</div>
+                    <div>Pinyin</div>
+                    <div>Meaning</div>
+                    <div>Example</div>
+                </div>
+            </div>
+
+            <!-- Dynamic Vocabulary List -->
+            <div id="vocab-list" class="divide-y divide-gray-100">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- Dynamic Test Section Container -->
+        <div id="dynamic-test-section" class="p-6 md:p-10 bg-white rounded-2xl shadow-xl border border-gray-200 mt-12 border-t-8 border-blue-600">
+            <!-- Injected via JS -->
+        </div>
+    </div>
+
+    <script>
+        let currentBatch = 1;
+
+        const hskData = {
+            1: [
+                ["爱", "ài", "love", "我爱中国。", "Wǒ ài Zhōngguó. - I love China."],
+                ["八", "bā", "eight", "我们有八个人。", "Wǒmen yǒu bā gè rén. - We have 8 people."],
+                ["爸爸", "bàba", "dad", "爸爸在看书。", "Bàba zài kànshū. - Dad is reading."],
+                ["吧", "ba", "(suggestion)", "我们走吧。", "Wǒmen zǒu ba. - Let's go."],
+                ["白天", "báitiān", "daytime", "我白天学习。", "Wǒ báitiān xuéxí. - I study during the day."],
+                ["百", "bǎi", "hundred", "一百元。", "Yī bǎi yuán. - One hundred yuan."],
+                ["半", "bàn", "half", "半个小时。", "Bàn gè xiǎoshí. - Half an hour."],
+                ["包子", "bāozi", "steamed bun", "我吃包子。", "Wǒ chī bāozi. - I eat steamed buns."],
+                ["杯子", "bēizi", "cup", "杯子在桌上。", "Bēizi zài zhuō shàng. - The cup is on the table."],
+                ["本", "běn", "book(mw)", "一本书。", "Yī běn shū. - One book."],
+                ["边", "biān", "side", "在旁边。", "Zài pángbiān. - On the side."],
+                ["病", "bìng", "illness", "我生病了。", "Wǒ shēngbìng le. - I am sick."],
+                ["不", "bù", "not", "我不吃。", "Wǒ bù chī. - I don't eat."],
+                ["不客气", "bù kèqi", "you're welcome", "谢谢。 - 不客气。", "Xièxie. - Bù kèqi. - Thanks. - You're welcome."],
+                ["不要", "bùyào", "don't want", "不要吃。", "Bùyào chī. - Don't eat."],
+                ["菜", "cài", "dish", "这个菜好吃。", "Zhè ge cài hǎochī. - This dish is tasty."],
+                ["茶", "chá", "tea", "请喝茶。", "Qǐng hē chá. - Please drink tea."],
+                ["唱", "chàng", "to sing", "她在唱歌。", "Tā zài chànggē. - She is singing."],
+                ["超市", "chāoshì", "supermarket", "我去超市。", "Wǒ qù chāoshì. - I go to the supermarket."],
+                ["车", "chē", "car", "这是我的车。", "Zhè shì wǒ de chē. - This is my car."],
+                ["吃", "chī", "to eat", "我们吃饭。", "Wǒmen chī fàn. - We eat a meal."],
+                ["出租车", "chūzūchē", "taxi", "坐出租车。", "Zuò chūzūchē. - Take a taxi."],
+                ["穿", "chuān", "to wear", "穿衣服。", "Chuān yīfu. - Wear clothes."],
+                ["打电话", "dǎ diànhuà", "make call", "我在打电话。", "Wǒ zài dǎ diànhuà. - I am making a call."],
+                ["大", "dà", "big", "这个很大。", "Zhè ge hěn dà. - This is very big."],
+                ["大家", "dàjiā", "everyone", "大家好。", "Dàjiā hǎo. - Hello everyone."],
+                ["大学", "dàxué", "university", "我去大学。", "Wǒ qù dàxué. - I go to university."],
+                ["大学生", "dàxuéshēng", "student", "他是大学生。", "Tā shì dàxuéshēng. - He is a student."],
+                ["到", "dào", "arrive", "到了。", "Dào le. - Arrived."],
+                ["的", "de", "(possessive)", "我的书。", "Wǒ de shū. - My book."],
+                ["第", "dì", "(ordinal)", "第一。", "Dì yī. - The first."],
+                ["弟弟", "dìdi", "younger bro", "我弟弟。", "Wǒ dìdi. - My younger brother."],
+                ["点", "diǎn", "o'clock", "三点。", "Sān diǎn. - 三点。"],
+                ["店", "diàn", "shop", "去商店。", "Qù shāngdiàn. - Go to the store."],
+                ["电话", "diànhuà", "phone", "打电话。", "Dǎ diànhuà. - Make a call."],
+                ["电脑", "diànnǎo", "computer", "看电脑。", "Kàn diànnǎo. - Look at computer."],
+                ["电视", "diànshì", "TV", "看电视。", "Kàn diànshì. - Watch TV."],
+                ["电影", "diànyǐng", "movie", "看电影。", "Kàn diànyǐng. - Watch movie."],
+                ["电影院", "diànyǐngyuàn", "cinema", "去电影院。", "Qù diànyǐngyuàn. - Go to cinema."],
+                ["东西", "dōngxi", "thing", "买东西。", "Mǎi dōngxi. - Buy things."],
+                ["都", "dōu", "all", "我们都去。", "Wǒmen dōu qù. - We all go."],
+                ["读", "dú", "read", "读书。", "Dú shū. - Read book."],
+                ["读书", "dúshū", "read book", "他在读书。", "Tā zài dúshū. - He is reading."],
+                ["对", "duì", "correct", "不对。", "Bù duì. - Not correct."],
+                ["对不起", "duìbuqǐ", "sorry", "对不起。", "Duìbuqǐ. - Sorry."],
+                ["多", "duō", "many", "很多。", "Hěn duō. - Very many."],
+                ["多少", "duōshao", "how many", "多少钱？", "Duōshao qián? - How much money?"],
+                ["儿子", "érzi", "son", "我儿子。", "Wǒ érzi. - My son."],
+                ["二", "èr", "two", "二月。", "Èr yuè. - February."],
+                ["饭", "fàn", "meal", "吃饭。", "Chī fàn. - Eat meal."]
+            ],
+            2: [
+                ["饭店", "fàndiàn", "restaurant", "我们去饭店吃饭。", "Wǒmen qù fàndiàn chī fàn. - We go to the restaurant to eat."],
+                ["房间", "fángjiān", "room", "他的房间很大。", "Tā de fángjiān hěn dà. - His room is very big."],
+                ["非常", "fēicháng", "extremely / very", "我非常喜欢喝茶。", "Wǒ fēicháng xǐhuan hē chá. - I like drinking tea very much."],
+                ["飞机", "fēijī", "airplane", "我坐飞机去北京。", "Wǒ zuò fēijī qù Běijīng. - I take an airplane to Beijing."],
+                ["分", "fēn", "minute / point", "现在是两点十分。", "Xiànzài shì liǎng diǎn shí fēn. - It is 2:10 right now."],
+                ["分钟", "fēnzhōng", "minute (duration)", "等我五分钟。", "Děng wǒ wǔ fēnzhōng. - Wait for me for five minutes."],
+                ["高兴", "gāoxìng", "happy", "认识你很高兴。", "Rènshi nǐ hěn gāoxìng. - Nice to meet you."],
+                ["歌", "gē", "song", "他在唱一首歌。", "Tā zài chàng yī shǒu gē. - He is singing a song."],
+                ["哥哥", "gēge", "older brother", "我哥哥是医生。", "Wǒ gēge shì yīshēng. - My older brother is a doctor."],
+                ["个", "gè", "measure word", "这是一个苹果。", "Zhè shì yí ge píngguǒ. - This is an apple."],
+                ["给", "gěi", "to give / for", "爸爸给我买了一本书。", "Bàba gěi wǒ mǎi le yì běn shū. - Dad bought me a book."],
+                ["公司", "gōngsī", "company", "我明天去公司。", "Wǒ míngtiān qù gōngsī. - I'm going to the company tomorrow."],
+                ["工作", "gōngzuò", "work / job", "他的工作是什么？", "Tā de gōngzuò shì shénme? - What is his job?"],
+                ["狗", "gǒu", "dog", "我有一只小狗。", "Wǒ yǒu yì zhī xiǎo gǒu. - I have a small dog."],
+                ["贵", "guì", "expensive", "这个东西很贵。", "Zhè ge dōngxi hěn guì. - This thing is very expensive."],
+                ["国", "guó", "country", "你是哪国人？", "Nǐ shì nǎ guó rén? - What country are you from?"],
+                ["还", "hái", "still / also", "我还要一个杯子。", "Wǒ hái yào yí ge bēizi. - I still want one cup."],
+                ["孩子", "háizi", "child", "这个孩子三岁。", "Zhè ge háizi sān suì. - This child is three years old."],
+                ["汉语", "hànyǔ", "Chinese language", "老师教我们汉语。", "Lǎoshī jiāo wǒmen hànyǔ. - The teacher teaches us Chinese."],
+                ["汉字", "hànzì", "Chinese character", "我会写这个汉字。", "Wǒ huì xiě zhè ge hànzì. - I can write this Chinese character."],
+                ["好", "hǎo", "good / well", "今天天气很好。", "Jīntiān tiānqì hěn hǎo. - The weather is very good today."],
+                ["好吃", "hǎochī", "delicious (food)", "中国菜很好吃。", "Zhōngguó cài hěn hǎochī. - Chinese food is delicious."],
+                ["好看", "hǎokàn", "good-looking / interesting", "那个电影很好看。", "Nà ge diànyǐng hěn hǎokàn. - That movie is very good to watch."],
+                ["好听", "hǎotīng", "pleasant to hear", "这首歌很好听。", "Zhè shǒu gē hěn hǎotīng. - This song sounds beautiful."],
+                ["好玩儿", "hǎowánr", "fun / amusing", "这个地方很好玩儿。", "Zhè ge dìfang hěn hǎowánr. - This place is very fun."],
+                ["号", "hào", "number / date", "你的电话是多少号？", "Nǐ de diànhuà_hào. - What is your phone number?"],
+                ["喝", "hē", "to drink", "你想喝什么？", "Nǐ xiǎng hē shénme? - What do you want to drink?"],
+                ["和", "hé", "and / with", "我和妈妈去买东西。", "Wǒ hé māma qù mǎi dōngxi. - Mom and I go shopping."],
+                ["很", "hěn", "very", "她很漂亮。", "Tā hěn piàoliang. - She is very beautiful."],
+                ["后", "hòu", "behind / after", "我们三天后见。", "Wǒmen sān tiān hòu jiàn. - We will see each other after 3 days."],
+                ["回", "huí", "to return", "他明天回国。", "Tā míngtiān huí guó. - He returns to his country tomorrow."],
+                ["会", "huì", "can / know how to", "我会说汉语。", "Wǒ huì shuō hànyǔ. - I can speak Chinese."],
+                ["火车", "huǒchē", "train", "我们坐火车去。", "Wǒmen zuò huǒchē qù. - We travel by train."],
+                ["鸡蛋", "jīdàn", "egg", "早上我吃鸡蛋。", "Zǎoshang wǒ chī jīdàn. - I eat eggs in the morning."],
+                ["几", "jǐ", "how many", "你们有几个人？", "Nǐmen yǒu jǐ ge rén? - How many people do you have?"],
+                ["家", "jiā", "home / family", "我家在中国。", "Wǒ jiā zài Zhōngguó. - My home is in China."],
+                ["家人", "jiārén", "family members", "我爱我的家人。", "Wǒ ài wǒ de jiārén. - I love my family members."],
+                ["见", "jiàn", "to see / to meet", "明天见。", "Míngtiān jiàn. - See you tomorrow."],
+                ["件", "jiàn", "measure word (clothing)", "这件衣服很漂亮。", "Zhè jiàn yīfu hěn piàoliang. - This piece of clothing is beautiful."],
+                ["饺子", "jiǎozi", "dumplets", "我们中午吃饺子。", "Wǒmen zhōngwǔ chī jiǎozi. - We eat dumplings at noon."],
+                ["叫", "jiào", "to be called", "你叫什么名字？", "Nǐ jiào shénme míngzi? - What is your name?"],
+                ["姐姐", "jiějie", "older sister", "我姐姐在看书。", "Wǒ jiějie zài kànshū. - My older sister is reading a book."],
+                ["今年", "jīnnián", "this year", "我今年二十岁。", "Wǒ jīnnián èrshí suì. - I am 20 years old this year."],
+                ["今天", "jīntiān", "today", "今天天气很好。", "Jīntiān tiānqì hěn hǎo. - Today the weather is good."],
+                ["九", "jiǔ", "nine", "我有九本书。", "Wǒ yǒu jiǔ běn shū. - I have 9 books."],
+                ["觉得", "juéde", "to feel / think", "我觉得很冷。", "Wǒ juéde hěn lěng. - I feel very cold."],
+                ["开", "kāi", "to open / to turn on", "请开门。", "Qǐng kāi mén. - Please open the door."],
+                ["开车", "kāichē", "to drive a car", "爸爸开车去公司。", "Bàba kāichē qù gōngsī. - Dad drives to the company."],
+                ["看", "kàn", "to look / to watch", "我喜欢看电影。", "Wǒ xǐhuan kàn diànyǐng. - I like to watch movies."],
+                ["看病", "kànbìng", "to see a doctor", "他去医院看病。", "Tā qù yīyuàn kànbìng. - He goes to the hospital to see a doctor."]
+            ],
+            3: [
+                ["看见", "kànjiàn", "to see / catch sight of", "我看见他了。", "Wǒ kànjiàn tā le. - I saw him."],
+                ["可以", "kěyǐ", "can / may", "我可以去吗？", "Wǒ kěyǐ qù ma? - Can I go?"],
+                ["课", "kè", "class / lesson", "上午我有汉语课。", "Shàngwǔ wǒ yǒu hànyǔ kè. - I have Chinese class in the morning."],
+                ["口", "kǒu", "mouth / (mw)", "他家有三口人。", "Tā jiā yǒu sān kǒu rén. - There are 3 people in his family."],
+                ["块", "kuài", "piece / (mw for money)", "十块钱。", "Shí kuài qián. - Ten yuan."],
+                ["来", "lái", "to come", "他明天来我家。", "Tā míngtiān lái wǒ jiā. - He comes to my home tomorrow."],
+                ["老师", "lǎoshī", "teacher", "老师很好。", "Lǎoshī hěn hǎo. - The teacher is very good."],
+                ["了", "le", "(completed action)", "下雨了。", "Xiàyǔ le. - It has started raining."],
+                ["冷", "lěng", "cold", "今天天气很冷。", "Jīntiān tiānqì hěn lěng. - The weather is very cold today."],
+                ["里", "lǐ", "inside", "手机在包里。", "Shǒujī zài bāo lǐ. - The phone is inside the bag."],
+                ["两", "liǎng", "two", "两个苹果。", "Liǎng ge píngguǒ. - Two apples."],
+                ["零", "líng", "zero", "零度。", "Líng dù. - Zero degrees."],
+                ["六", "liù", "six", "六年了。", "Liù nián le. - Six years have passed."],
+                ["妈妈", "māma", "mom", "妈妈在做饭。", "Māma zài zuò fàn. - Mom is cooking."],
+                ["吗", "ma", "(question particle)", "你好吗？", "Nǐ hǎo ma? - How are you?"],
+                ["买", "mǎi", "to buy", "我去买书。", "Wǒ qù mǎi shū. - I go to buy a book."],
+                ["卖", "mài", "to sell", "这个店卖水果。", "Zhè ge diàn mài shuǐguǒ. - This shop sells fruit."],
+                ["忙", "máng", "busy", "昨天我很忙。", "Zuótiān wǒ hěn máng. - I was very busy yesterday."],
+                ["猫", "māo", "cat", "那是一只小猫。", "Nà shì yī zhī xiǎo māo. - That is a small cat."],
+                ["没关系", "méi guānxi", "it doesn't matter", "对不起！- 没关系。", "Duìbuqǐ! - Méi guānxi. - Sorry! - It doesn't matter."],
+                ["没事", "méishì", "it's nothing", "我没事，谢谢。", "Wǒ méishì, xièxie. - I'm fine, thank you."],
+                ["没有", "méiyǒu", "don't have", "我没有钱。", "Wǒ méiyǒu qián. - I don't have money."],
+                ["妹妹", "mèimei", "younger sister", "妹妹不吃肉。", "Mèimei bù chī ròu. - Younger sister doesn't eat meat."],
+                ["们", "men", "(plural marker)", "同学们好！", "Tóngxué men hǎo! - Hello classmates!"],
+                ["米饭", "mǐfàn", "cooked rice", "我要吃米饭。", "Wǒ yào chī mǐfàn. - I want to eat rice."],
+                ["面包", "miànbāo", "bread", "哥哥吃面包。", "Gēge chī miànbāo. - Older brother eats bread."],
+                ["面条儿", "miàntiáor", "noodles", "午饭我们吃面条儿。", "Wǔfàn wǒmen chī miàntiáor. - We eat noodles for lunch."],
+                ["明年", "míngnián", "next year", "明年我去中国。", "Míngnián wǒ qù Zhōngguó. - Next year I will go to China."],
+                ["明天", "míngtiān", "tomorrow", "明天我不上班。", "Míngtiān wǒ bù shàngbān. - I don't work tomorrow."],
+                ["名字", "míngzi", "name", "他的名字叫大卫。", "Tā de míngzi jiào Dàwèi. - His name is David."],
+                ["哪", "nǎ", "which", "你是哪国人？", "Nǐ shì nǎ guó rén? - What country are you from?"],
+                ["哪个", "nǎge", "which one", "你要哪个电脑？", "Nǐ yào nǎge diànnǎo? - Which computer do you want?"],
+                ["哪里", "nǎlǐ", "where", "他在哪里工作？", "Tā zài nǎlǐ gōngzuò? - Where does he work?"],
+                ["哪儿", "nǎr", "where", "你去哪儿？", "Nǐ qù nǎr? - Where are you going?"],
+                ["哪些", "nǎxiē", "which ones", "你买了哪些书？", "Nǐ mǎi le nǎxiē shū? - Which books did you buy?"],
+                ["那", "nà", "that", "那是我的朋友。", "Nà shì wǒ de péngyou. - That is my friend."],
+                ["那边", "nàbiān", "over there", "医院在那边。", "Yīyuàn zài nàbiān. - The hospital is over there."],
+                ["那个", "nàge", "that one", "我不要那个。", "Wǒ bùyào nàge. - I don't want that one."],
+                ["那里", "nàlǐ", "there", "那里有很多学生。", "Nàlǐ yǒu hěn duō xuésheng. - There are many students there."],
+                ["那儿", "nàr", "there", "你的水在那儿。", "Nǐ de shuǐ zài nàr. - Your water is over there."],
+                [" those", "nàxiē", "those", "那些人是谁？", "Nàxiē rén shì shéi? - Who are those people?"],
+                ["男", "nán", "male", "他是个男孩。", "Tā shì ge nánhái. - He is a boy."],
+                ["男朋友", "nánpéngyou", "boyfriend", "她的男朋友很高。", "Tā de nánpéngyou hěn gāo. - Her boyfriend is very tall."],
+                ["呢", "ne", "(question particle)", "我很好，你呢？", "Wǒ hěn hǎo, nǐ ne? - I am good, and you?"],
+                ["能", "néng", "can", "我能坐这里吗？", "Wǒ néng zuò zhèlǐ ma? - Can I sit here?"],
+                ["你", "nǐ", "you", "你好！", "Nǐ hǎo! - Hello!"],
+                ["你好", "nǐ hǎo", "hello", "老师，你好！", "Lǎoshī, nǐ hǎo! - Hello, teacher!"],
+                ["你们", "nǐmen", "you (plural)", "你们去哪儿？", "Nǐmen qù nǎr? - Where are you all going?"],
+                ["年", "nián", "year", "去年我没来。", "Qùnián wǒ méi lái. - I didn't come last year."],
+                ["您", "nín", "you (polite)", "您好，先生！", "Nín hǎo, xiānsheng! - Hello, sir!"]
+            ],
+            4: [
+                ["朋友", "péngyou", "friend", "他是我的好朋友。", "Tā shì wǒ de hǎo péngyou. - He is my good friend."],
+                ["便宜", "piányi", "cheap", "这里的苹果很便宜。", "Zhèlǐ de píngguǒ hěn piányi. - The apples here are cheap."],
+                ["漂亮", "piàoliang", "beautiful", "她的衣服很漂亮。", "Tā de yīfu hěn piàoliang. - Her clothes are beautiful."],
+                ["苹果", "píngguǒ", "apple", "我买了一些苹果。", "Wǒ mǎi le yīxiē píngguǒ. - I bought some apples."],
+                ["七", "qī", "seven", "一星期有七天。", "Yī xīngqī yǒu qī tiān. - A week has seven days."],
+                ["起床", "qǐchuáng", "to wake up", "我早上七点起床。", "Wǒ zǎoshang qī diǎn qǐchuáng. - I wake up at 7am."],
+                ["千", "qiān", "thousand", "两千元。", "Liǎng qiān yuán. - 2000 yuan."],
+                ["前", "qián", "front", "学校前面。", "Xuéxiào qiánmiàn. - In front of school."],
+                ["钱", "qián", "money", "我没有钱。", "Wǒ méiyǒu qián. - I don't have money."],
+                ["请", "qǐng", "please", "请坐！", "Qǐng zuò! - Please sit."],
+                ["请问", "qǐngwèn", "excuse me", "请问他在吗？", "Qǐngwèn tā zài ma? - Excuse me, is he here?"],
+                ["去", "qù", "to go", "我们去火车站。", "Wǒmen qù huǒchēzhàn. - We go to the station."],
+                ["去年", "qùnián", "last year", "去年我去了北京。", "Qùnián wǒ qù le Běijīng. - I went to Beijing last year."],
+                ["热", "rè", "hot", "天气太热了。", "Tiānqì tài rè le. - The weather is too hot."],
+                ["人", "rén", "person", "那个人是谁？", "Nà ge rén shì shéi? - Who is that person?"],
+                ["认识", "rènshi", "to know", "你认识他吗？", "Nǐ rènshi tā ma? - Do know him?"],
+                ["日", "rì", "sun / day", "星期日。", "Xīngqīrì. - Sunday."],
+                ["三", "sān", "three", "三点钟。", "Sān diǎn zhōng. - 3 o'clock."],
+                ["商店", "shāngdiàn", "store", "我去商店买水。", "Wǒ qù shāngdiàn mǎi shuǐ. - I go to the store."],
+                ["上", "shàng", "up", "在桌子上。", "Zài zhuōzi shàng. - On the table."],
+                ["上班", "shàngbān", "go to work", "爸爸六点下班。", "Bàba liù diǎn xiàbān. - Dad finishes work at 6."],
+                ["上课", "shàngkè", "attend class", "我们在上课。", "Wǒmen zài shàngkè. - We are in class."],
+                ["上午", "shàngwǔ", "morning", "上午我不忙。", "Shàngwǔ wǒ bù máng. - I am not busy in the morning."],
+                ["上学", "shàngxué", "go to school", "孩子上学了。", "Háizi shàngxué le. - The child went to school."],
+                ["少", "shǎo", "few / little", "喝少点水。", "Hē shǎo diǎn shuǐ. - Drink less water."],
+                ["谁", "shéi", "who", "谁在说话？", "Shéi zài shuōhuà? - Who is speaking?"],
+                ["什么", "shénme", "what", "这是什么？", "Zhè shì shénme? - What is this?"],
+                ["生病", "shēngbìng", "to get sick", "她生病了。", "Tā shēngbìng le. - She got sick."],
+                ["十", "shí", "ten", "十二月。", "Shí'èryuè. - December."],
+                ["时候", "shíhou", "time", "你什么时候来？", "Nǐ shénme shíhou lái? - When are you coming?"],
+                ["时间", "shíjiān", "time", "没有时间。", "Méiyǒu shíjiān. - No time."],
+                ["事", "shì", "matter", "有什么事？", "Yǒu shénme shì? - What's the matter?"],
+                ["是", "shì", "to be", "我是老师。", "Wǒ shì lǎoshī. - I am a teacher."],
+                ["手机", "shǒujī", "mobile phone", "我的手机。", "Wǒ de shǒujī. - My mobile phone."],
+                ["书", "shū", "book", "这是一本书。", "Zhè  shì yī běn shū. - This is a book."],
+                ["书店", "shūdiàn", "bookstore", "去书店买书。", "Qù shūdiàn mǎi shū. - Go to the bookstore."],
+                ["水", "shuǐ", "water", "喝水。", "Hē shuǐ. - Drink water."],
+                ["水果", "shuǐguǒ", "fruit", "吃水果。", "Chī shuǐguǒ. - Eat fruit."],
+                ["睡", "shuì", "to sleep", "我想睡了。", "Wǒ xiǎng shuì le. - I want to sleep."],
+                ["睡觉", "shuìjiào", "to sleep", "十点睡觉。", "Shí diǎn shuìjiào. - Sleep at 10."],
+                ["说", "shuō", "to speak", "他会说汉语。", "Tā huì shuō hànyǔ. - He speaks Chinese."],
+                ["说话", "shuōhuà", "to talk", "别说话。", "Bié shuōhuà. - Don't talk."],
+                ["四", "sì", "four", "四个苹果。", "Sì ge píngguǒ. - 4 apples."],
+                ["岁", "suì", "years old", "我三岁。", "Wǒ sān suì. - I am 3."],
+                ["他", "tā", "he", "他是我的老师。", "Tā  shì wǒ de lǎoshī. - He is my teacher."],
+                ["它", "tā", "it", "它是我的猫。", "Tā shì wǒ de māo. - It is my cat."],
+                ["她", "tā", "she", "她是我的朋友。", "Tā shì wǒ de péngyou. - She is my friend."],
+                ["他们", "tāmen", "they", "他们去哪儿？", "Tāmen qù nǎr? - Where are they going?"],
+                ["它们", "tāmen", "they (animals)", "它们是狗。", "Tāmen shì gǒu. - They are dogs."],
+                ["她们", "tāmen", "they (fem.)", "她们是同学。", "Tāmen shì tóngxué. - They are classmates."]
+            ],
+            5: [
+                ["太", "tài", "too / extremely", "太好了！", "Tài hǎo le! - Great! / Too good!"],
+                ["天气", "tiānqì", "weather", "今天天气怎么样？", "Jīntiān tiānqì zěnmeyàng? - How is the weather today?"],
+                ["听", "tīng", "to listen", "我喜欢听歌。", "Wǒ xǐhuan tīng gē. - I like to listen to songs."],
+                ["听见", "tīngjiàn", "to hear", "你听见了吗？", "Nǐ tīngjiàn le ma? - Did you hear?"],
+                ["同学", "tóngxué", "classmate", "他是我的同学。", "Tā  shì wǒ de tóngxué. - He is my classmate."],
+                ["外", "wài", "outside", "别去外面。", "Bié qù wàimiàn. - Don't go outside."],
+                ["外边", "wàibian", "outside", "外边很冷。", "Wàibian hěn lěng. - It is cold outside."],
+                ["玩", "wán", "to play", "孩子们在玩。", "Háizi men zài wán. - The children are playing."],
+                ["晚", "wǎn", "late", "太晚了，回家吧。", "Tài wǎn le, huíjiā ba. - It's too late, let's go home."],
+                ["晚饭", "wǎnfàn", "dinner", "晚饭吃饺子。", "Wǎnfàn chī jiǎozi. - Eat dumplings for dinner."],
+                ["晚上", "wǎnshang", "evening / night", "晚上我不在家。", "Wǎnshang wǒ bù zài jiā. - I am not at home in the evening."],
+                ["喂", "wèi", "hello (phone)", "喂，你是谁？", "Wèi, nǐ  shì shéi? - Hello, who are you?"],
+                ["问", "wèn", "to ask", "我问老师一个问题。", "Wǒ wèn lǎoshī yī ge wèntí. - I ask the teacher a question."],
+                ["问题", "wèntí", "question / problem", "没问题。", "Méi wèntí. - No problem."],
+                ["我", "wǒ", "I / me", "我爱你。", "Wǒ ài nǐ. - I love you."],
+                ["我们", "wǒmen", "we / us", "我们一起去吧。", "Wǒmen yīqǐ qù ba. - Let's go together."],
+                ["五", "wǔ", "five", "星期五。", "Xīngqīwǔ. - Friday."],
+                ["午饭", "wǔfàn", "lunch", "午饭我吃米饭。", "Wǔfàn wǒ chī mǐfàn. - I eat rice for lunch."],
+                ["喜欢", "xǐhuan", "to like", "我喜欢看电影。", "Wǒ xǐhuan kàn diànyǐng. - I like to watch movies."],
+                ["下", "xià", "down / under", "在桌子下面。", "Zài zhuōzi xiàmiàn. - Under the table."],
+                ["下雨", "xiàyǔ", "to rain", "今天下雨了。", "Jīntiān xiàyǔ le. - It's raining today."],
+                ["下班", "xiàbān", "get off work", "爸爸六点下班。", "Bàba liù diǎn xiàbān. - Dad finishes work at six."],
+                ["下课", "xiàkè", "finish class", "我们下课了。", "Wǒmen xiàkè le. - Class is over."],
+                ["下午", "xiàwǔ", "afternoon", "下午我去学校。", "Xiàwǔ wǒ qù xuéxiào. - I go to school in the afternoon."],
+                ["先生", "xiānsheng", "Mr. / sir", "王先生在打电话。", "Wáng xiānsheng zài dǎ diànhuà. - Mr. Wang is on the phone."],
+                ["现在", "xiànzài", "now", "现在十点半。", "Xiànzài shí diǎn bàn. - It is 10:30 now."],
+                ["想", "xiǎng", "to think / want", "我想买一个新手机。", "Wǒ xiǎng mǎi yí ge xīn shǒujī. - I want to buy a new phone."],
+                ["小", "xiǎo", "small", "这个苹果很小。", "Zhè ge píngguǒ hěn xiǎo. - This apple is very small."],
+                ["小朋友", "xiǎopéngyou", "child / kid", "小朋友，你好！", "Xiǎopéngyou, nǐ hǎo! - Hello, little friend!"],
+                ["小时", "xiǎoshí", "hour", "我学了两个小时。", "Wǒ xué le liǎng gè xiǎoshí. - I studied for two hours."],
+                ["小学", "xiǎoxué", "primary school", "我儿子上小学。", "Wǒ de érzi shàng xiǎoxué. - My son goes to primary school."],
+                ["小学生", "xiǎoxuéshēng", "primary student", "她是小学生。", "Tā  shì xiǎoxuéshēng. - She is a primary school student."],
+                ["些", "xiē", "some", "这些书是我的。", "These are mine. - These books are mine."],
+                ["写", "xiě", "to write", "请写你的名字。", "Qǐng xiě nǐ de míngzi. - Please write your name."],
+                ["谢谢", "xièxie", "thank you", "谢谢你帮我。", "Xièxie nǐ bāng wǒ. - Thank you for helping me."],
+                ["新", "xīn", "new", "我的新手机。", "Wǒ de xīn shǒujī. - My new mobile phone."],
+                ["星期", "xīngqī", "week", "一星期有七天。", "Yī xīngqī yǒu qī tiān. - A week has seven days."],
+                ["星期日", "xīngqīrì", "Sunday", "星期日去商店。", "Xīngqīrì qù shāngdiàn. - Go to the store on Sunday."],
+                ["星期天", "xīngqītiān", "Sunday", "星期天我休息。", "Xīngqītiān wǒ xiūxi. - I rest on Sunday."],
+                ["休息", "xiūxi", "to rest", "我累了，想休息。", "Wǒ lèi le, xiǎng xiūxi. - I am tired and want to rest."],
+                ["学", "xué", "to study", "我学汉语。", "Wǒ xué hànyǔ. - I study Chinese."],
+                ["学生", "xuésheng", "student", "他们是学生。", "Tāmen  shì xuésheng. - They are students."],
+                ["学习", "xuéxí", "to study / learn", "他在学习汉语。", "Tā zài xuéxí hànyǔ. - He is studying Chinese."],
+                ["学校", "xuéxiào", "school", "我去学校看书。", "Wǒ qù xuéxiào kànshū. - I go to school to read books."],
+                ["雪", "xuě", "snow", "下雪了。", "Xiàxuě le. - It is snowing."],
+                ["要", "yào", "to want / need", "我要喝水。", "Wǒ yào hē shuǐ. - I want to drink water."],
+                ["也", "yě", "also / too", "他是老师，我也是。", "Tā  shì lǎoshī, wǒ yě  shì. - He is a teacher, and I am too."],
+                ["一", "yī", "one", "一个杯子。", "Yī gè bēizi. - One cup."],
+                ["衣服", "yīfu", "clothes", "买新衣服。", "Mǎi xīn yīfu. - Buy new clothes."],
+                ["医生", "yīshēng", "doctor", "他是医院的医生。", "Tā  shì yīyuàn de yīshēng. - He is a doctor at the hospital."]
+            ],
+            6: [
+                ["牛奶", "niúnǎi", "milk", "妹妹喜欢喝牛奶。", "Mèimei xǐhuan hē niúnǎi. - Younger sister likes to drink milk."],
+                ["女", "nǚ", "female", "他是女医生。", "Tā  shì nǚ yīshēng. - She is a female doctor."],
+                ["女儿", "nǚ'ér", "daughter", "他有一个女儿。", "Tā yǒu yí ge nǚ'ér. - He has a daughter."],
+                ["女朋友", "nǚpéngyou", "girlfriend", "我的女朋友很漂亮。", "Wǒ de nǚpéngyou hěn piàoliang. - My girlfriend is very beautiful."],
+                ["女士", "nǚshì", "lady / Ms.", "女士们，先生们，下午好。", "Nǚshì men, xiānsheng men, xiàwǔ hǎo. - Ladies and gentlemen, good afternoon."],
+                ["医院", "yīyuàn", "hospital", "我明天去医院看病。", "Wǒ míngtiān qù yīyuàn kànbìng. - I am going to the hospital tomorrow to see a doctor."],
+                ["一半", "yībàn", "half", "给我一半苹果。", "Gěi wǒ yí bàn píngguǒ. - Give me half an apple."],
+                ["一下", "yīxià", "a bit / once", "请等一下。", "Qǐng děng yíxià. - Please wait a bit."],
+                ["椅子", "yǐzi", "chair", "椅子在桌子旁边。", "Yǐzi zài zhuōzi pángbiān. - The chair is next to the table."],
+                ["一点儿", "yīdiǎnr", "a little bit", "我会说一点儿汉语。", "Wǒ huì shuō yìdiǎnr hànyǔ. - I can speak a little bit of Chinese."],
+                ["一些", "yīxiē", "some", "我买了一些水果。", "Wǒ mǎi le yìxiē shuǐguǒ. - I bought some fruit."],
+                ["有", "yǒu", "to have", "我有九本书。", "Wǒ yǒu jiǔ běn shū. - I have 9 books."],
+                ["有的", "yǒude", "some", "有的学生没来。", "Yǒude xuésheng méi lái. - Some students didn't come."],
+                ["有点儿", "yǒudiǎnr", "a bit / slightly", "今天天气有点儿冷。", "Jīntiān tiānqì yǒudiǎnr lěng. - The weather is a bit cold today."],
+                ["有些", "yǒuxiē", "some", "有些话不能说。", "Yǒuxiē huà bù néng shuō. - Some things cannot be said."],
+                ["雨", "yǔ", "rain", "外面在下大雨。", "Wàimiàn zài xià dà yǔ. - It is raining heavily outside."],
+                ["元", "yuán", "yuan (currency)", "这个手机三千元。", "Zhè ge shǒujī sān qiān yuán. - This phone is 3000 yuan."],
+                ["月", "yuè", "month / moon", "一年有十二个月。", "Yì nián yǒu shí'èr gè yuè. - A year has 12 months."],
+                ["再", "zài", "again", "请再说一次。", "Qǐng zài shuō yí cì. - Please say it again."],
+                ["在", "zài", "at / in / on", "我在学校看书。", "Wǒ zài xuéxiào kànshū. - I am reading books at school."],
+                ["再见", "zàijiàn", "goodbye", "老师，再见！", "Lǎoshī, zàijiàn! - Goodbye, teacher!"],
+                ["早", "zǎo", "early", "你来得很早。", "Nǐ lái de hěn zǎo. - You arrived very early."],
+                ["早饭", "zǎofàn", "breakfast", "我不吃早饭。", "Wǒ bù chī zǎofàn. - I don't eat breakfast."],
+                ["早上", "zǎoshang", "morning", "早上我很忙。", "Zǎoshang wǒ hěn máng. - I am very busy in the morning."],
+                ["怎么", "zěnme", "how", "这个字怎么写？", "Zhè ge zì zěnme xiě? - How is this character written?"],
+                ["怎么样", "zěnmeyàng", "how is it", "今天天气怎么样？", "Jīntiān tiānqì zěnmeyàng? - How is the weather today?"],
+                ["找", "zhǎo", "to look for", "我在找我的手机。", "Wǒ zài zhǎo wǒ de shǒujī. - I am looking for my phone."],
+                ["这", "zhè", "this", "这是一部好电影。", "Zhè  shì yí bù hǎo diànyǐng. - This is a good movie."],
+                ["这边", "zhèbiān", "this side / here", "请来这边坐。", "Qǐng lái zhèbiān zuò. - Please come and sit here."],
+                ["这个", "zhège", "this one", "这个苹果很大。", "Zhè ge píngguǒ hěn dà. - This apple is very big."],
+                ["这里", "zhèlǐ", "here", "这里有很多商店。", "Zhèlǐ yǒu hěn duō shāngdiàn. - There are many stores here."],
+                ["这儿", "zhèr", "here", "他不在这儿。", "Tā bú zài zhèr. - He is not here."],
+                ["这些", "zhèxiē", "these", "these books are mine.", "这些书是我的。 - These books are mine."],
+                ["真", "zhēn", "really / truly", "今天真热！", "Jīntiān zhēn rè! - Today is really hot!"],
+                ["正在", "zhèngzài", "in process of", "我们正在上课。", "Wǒmen zhèngzài shàngkè. - We are currently in class."],
+                ["只", "zhī", "measure word (animals)", "我有一只小狗。", "Wǒ yǒu yì zhī xiǎo gǒu. - I have a small dog."],
+                ["知道", "zhīdao", "to know", "我知道他的名字。", "Wǒ zhīdao tā de míngzi. - I know his name."],
+                ["中国", "Zhōngguó", "China", "中国很大。", "Zhōngguó hěn dà. - China is very big."],
+                ["中文", "Zhōngwén", "Chinese language", "他学中文学了一年。", "Tā xué Zhōngwén xué le yì nián. - He studied Chinese for a year."],
+                ["中午", "zhōngwǔ", "noon", "中午我们吃饺子。", "Zhōngwǔ wǒmen chī jiǎozi. - We eat dumplings at noon."],
+                ["中学", "zhōngxué", "middle school", "弟弟上中学了。", "Dìdi shàng zhōngxué le. - My younger brother went to middle school."],
+                ["中学生", "zhōngxuéshēng", "middle school student", "她是中学生。", "Tā  shì zhōngxuéshēng. - She is a middle school student."],
+                ["住", "zhù", "to live / stay", "你住哪儿？", "Nǐ zhù nǎr? - Where do you live?"],
+                ["桌子", "zhuōzi", "table / desk", "书在桌子上。", "Shū zài zhuōzi shàng. - The book is on the table."],
+                ["字", "zì", "character / word", "我会写中国字。", "Wǒ huì xiě Zhōngguó zì. - I can write Chinese characters."],
+                ["昨天", "zuótiān", "yesterday", "昨天我去了超市。", "Zuótiān wǒ qù le chāoshì. - Yesterday I went to the supermarket."],
+                ["坐", "zuò", "to sit", "请坐下喝茶。", "Qǐng zuò xià hē chá. - Please sit down and drink tea."],
+                ["做", "zuò", "to do / make", "你在做什么？", "Nǐ zài zuò shénme? - What are you doing?"],
+                ["做饭", "zuò fàn", "to cook", "妈妈在做饭。", "Māma zài zuò fàn. - Mom is cooking."],
+                ["右边", "yòubiān", "right side", "他在我的右边。", "Tā zài wǒ de yòubiān. - He is on my right side."]
+            ]
+        };
+
+        const testDatabase = {
+            1: {
+                title: "Cumulative Test (Batch 1)",
+                desc: "Complete all 40 questions to verify your mastery of the first 50 foundational words.",
+                s1: [
+                    { q: "我爱中国。", a: ["China is big.", "I love China."], idx: 1 },
+                    { q: "爸爸在看书。", a: ["Dad is eating.", "Dad is reading."], idx: 2 },
+                    { q: "去电影院。", a: ["Watch TV.", "Go to the cinema."], idx: 3 },
+                    { q: "半个小时。", a: ["One hour.", "Half an hour."], idx: 4 },
+                    { q: "我不吃包子。", a: ["I don't eat buns.", "I am sick."], idx: 5 },
+                    { q: "多少钱？", a: ["How many?", "How much money?"], idx: 6 },
+                    { q: "我是大学生。", a: ["I am a student.", "I am at school."], idx: 7 },
+                    { q: "对不起。", a: ["You're welcome.", "Sorry."], idx: 8 }
+                ],
+                s2: [
+                    { num: 9, pin: "báitiān", ph: "English meaning..." },
+                    { num: 10, pin: "chāoshì", ph: "English meaning..." },
+                    { num: 11, pin: "dōngxi", ph: "English meaning..." },
+                    { num: 12, pin: "diànnǎo", ph: "English meaning..." },
+                    { num: 13, pin: "bìng", ph: "English meaning..." },
+                    { num: 14, pin: "chūzūchē", ph: "English meaning..." },
+                    { num: 15, pin: "bù kèqi", ph: "English meaning..." },
+                    { num: 16, pin: "dìdi", ph: "English meaning..." }
+                ],
+                s3: [
+                    { num: 17, char: "大家", ph: "English..." },
+                    { num: 18, char: "杯子", ph: "English..." },
+                    { num: 19, char: "穿", ph: "English..." },
+                    { num: 20, char: "读书", ph: "English..." },
+                    { num: 21, char: "打电话", ph: "English..." },
+                    { num: 22, char: "茶", ph: "English..." },
+                    { num: 23, char: "一百", ph: "English..." },
+                    { num: 24, char: "店", ph: "English..." }
+                ],
+                s4: [
+                    { num: 25, eng: "To eat", ph: "Chinese/Pinyin..." },
+                    { num: 26, eng: "Son", ph: "Chinese/Pinyin..." },
+                    { num: 27, eng: "Half", ph: "Chinese/Pinyin..." },
+                    { num: 28, eng: "Many", ph: "Chinese/Pinyin..." },
+                    { num: 29, eng: "Correct / Right", ph: "Chinese/Pinyin..." },
+                    { num: 30, eng: "Side", ph: "Chinese/Pinyin..." },
+                    { num: 31, eng: "Arrive", ph: "Chinese/Pinyin..." },
+                    { num: 32, eng: "Don't want", ph: "Chinese/Pinyin..." }
+                ],
+                s5: [
+                    { num: 33, eng: "I love China.", ph: "Type Chinese..." },
+                    { num: 34, eng: "We have 8 people.", ph: "Type Chinese..." },
+                    { num: 35, eng: "Let's go.", ph: "Type Chinese..." },
+                    { num: 36, eng: "The cup is on the table.", ph: "Type Chinese..." },
+                    { num: 37, eng: "I don't eat.", ph: "Type Chinese..." },
+                    { num: 38, eng: "This dish is tasty.", ph: "Type Chinese..." },
+                    { num: 39, eng: "I am making a call.", ph: "Type Chinese..." },
+                    { num: 40, eng: "We all go.", ph: "Type Chinese..." }
+                ]
+            },
+            2: {
+                title: "Cumulative Test (Batch 2)",
+                desc: "Complete all 40 questions to verify your mastery of daily life vocabulary and action verbs.",
+                s1: [
+                    { q: "我们去饭店吃饭。", a: ["We are eating at home.", "We go to the restaurant to eat."], idx: 1 },
+                    { q: "我坐飞机去北京。", a: ["I take an airplane to Beijing.", "I take a train to Beijing."], idx: 2 },
+                    { q: "我明天去公司。", a: ["I work at the hospital.", "I'm going to the company tomorrow."], idx: 3 },
+                    { q: "我会写这个汉字。", a: ["I can write this Chinese character.", "I can speak Chinese."], idx: 4 },
+                    { q: "我们坐火车去。", a: ["We travel by train.", "We take a taxi."], idx: 5 },
+                    { q: "早上我吃鸡蛋。", a: ["I want to eat dumplings.", "I eat eggs in the morning."], idx: 6 },
+                    { q: "我今年二十岁。", a: ["I am 20 years old this year.", "I am a student this year."], idx: 7 },
+                    { q: "他去医院看病。", a: ["He goes to the hospital to see a doctor.", "He is sick at home."], idx: 8 }
+                ],
+                s2: [
+                    { num: 9, pin: "fángjiān", ph: "English meaning..." },
+                    { num: 10, pin: "fēicháng", ph: "English meaning..." },
+                    { num: 11, pin: "gāoxìng", ph: "English meaning..." },
+                    { num: 12, pin: "gōngzuò", ph: "English meaning..." },
+                    { num: 13, pin: "hǎochī", ph: "English meaning..." },
+                    { num: 14, pin: "jiǎozi", ph: "English meaning..." },
+                    { num: 15, pin: "juéde", ph: "English meaning..." },
+                    { num: 16, pin: "kāichē", ph: "English meaning..." }
+                ],
+                s3: [
+                    { num: 17, char: "分钟", ph: "English..." },
+                    { num: 18, char: "孩子", ph: "English..." },
+                    { num: 19, char: "汉语", ph: "English..." },
+                    { num: 20, char: "家人", ph: "English..." },
+                    { num: 21, char: "姐姐", ph: "English..." },
+                    { num: 22, char: "今天", ph: "English..." },
+                    { num: 23, char: "哥哥", ph: "English..." },
+                    { num: 24, char: "叫", ph: "English..." }
+                ],
+                s4: [
+                    { num: 25, eng: "Dog", ph: "Chinese/Pinyin..." },
+                    { num: 26, eng: "Expensive", ph: "Chinese/Pinyin..." },
+                    { num: 27, eng: "Country", ph: "Chinese/Pinyin..." },
+                    { num: 28, eng: "To drink", ph: "Chinese/Pinyin..." },
+                    { num: 29, eng: "Nine", ph: "Chinese/Pinyin..." },
+                    { num: 30, eng: "To open / drive", ph: "Chinese/Pinyin..." },
+                    { num: 31, eng: "To see / meet", ph: "Chinese/Pinyin..." },
+                    { num: 32, eng: "Measure word (clothes)", ph: "Chinese/Pinyin..." }
+                ],
+                s5: [
+                    { num: 33, eng: "I still want one cup.", ph: "Type Chinese..." },
+                    { num: 34, eng: "Dad bought me a book.", ph: "Type Chinese..." },
+                    { num: 35, eng: "How many people do you have?", ph: "Type Chinese..." },
+                    { num: 36, eng: "Mom and I go shopping.", ph: "Type Chinese..." },
+                    { num: 37, eng: "What is his job?", ph: "Type Chinese..." },
+                    { num: 38, eng: "This child is three years old.", ph: "Type Chinese..." },
+                    { num: 39, eng: "I like to watch movies.", ph: "Type Chinese..." },
+                    { num: 40, eng: "I feel very cold.", ph: "Type Chinese..." }
+                ]
+            },
+            3: {
+                title: "Cumulative Test (Batch 3)",
+                desc: "Complete all 40 questions to verify your mastery of directions, pronouns, and locations.",
+                s1: [
+                    { q: "老师很好。", a: ["I am a teacher.", "The teacher is very good."], idx: 1 },
+                    { q: "我买两个苹果。", a: ["I buy two apples.", "I sell two apples."], idx: 2 },
+                    { q: "妈妈在做饭。", a: ["Mom is eating.", "Mom is cooking."], idx: 3 },
+                    { q: "午饭吃面条儿。", a: ["Eat rice for dinner.", "Eat noodles for lunch."], idx: 4 },
+                    { q: "医院在那边。", a: ["Where is the hospital?", "The hospital is over there."], idx: 5 },
+                    { q: "明天我不上班。", a: ["I don't work tomorrow.", "I am busy today."], idx: 6 },
+                    { q: "那个男孩子是谁？", a: ["Is he your boyfriend?", "Who is that boy?"], idx: 7 },
+                    { q: "您好，先生！", a: ["Hello, sir!", "How are you?"], idx: 8 }
+                ],
+                s2: [
+                    { num: 9, pin: "kànjiàn", ph: "English meaning..." },
+                    { num: 10, pin: "kěyǐ", ph: "English meaning..." },
+                    { num: 11, pin: "lěng", ph: "English meaning..." },
+                    { num: 12, pin: "mǎi", ph: "English meaning..." },
+                    { num: 13, pin: "māo", ph: "English meaning..." },
+                    { num: 14, pin: "míngzi", ph: "English meaning..." },
+                    { num: 15, pin: "nánpéngyou", ph: "English meaning..." },
+                    { num: 16, pin: "nián", ph: "English meaning..." }
+                ],
+                s3: [
+                    { num: 17, char: "课", ph: "English..." },
+                    { num: 18, char: "块", ph: "English..." },
+                    { num: 19, char: "没关系", ph: "English..." },
+                    { num: 20, char: "没有", ph: "English..." },
+                    { num: 21, char: "面包", ph: "English..." },
+                    { num: 22, char: "哪些", ph: "English..." },
+                    { num: 23, char: "你们", ph: "English..." },
+                    { num: 24, char: "能", ph: "English..." }
+                ],
+                s4: [
+                    { num: 25, eng: "Inside", ph: "Chinese/Pinyin..." },
+                    { num: 26, eng: "Zero", ph: "Chinese/Pinyin..." },
+                    { num: 27, eng: "Six", ph: "Chinese/Pinyin..." },
+                    { num: 28, eng: "Busy", ph: "Chinese/Pinyin..." },
+                    { num: 29, eng: "Younger sister", ph: "Chinese/Pinyin..." },
+                    { num: 30, eng: "Cooked rice", ph: "Chinese/Pinyin..." },
+                    { num: 31, eng: "Next year", ph: "Chinese/Pinyin..." },
+                    { num: 32, eng: "Where", ph: "Chinese/Pinyin..." }
+                ],
+                s5: [
+                    { num: 33, eng: "I saw him.", ph: "Type Chinese..." },
+                    { num: 34, eng: "Can I sit here?", ph: "Type Chinese..." },
+                    { num: 35, eng: "My phone is in the bag.", ph: "Type Chinese..." },
+                    { num: 36, eng: "I am fine, thank you.", ph: "Type Chinese..." },
+                    { num: 37, eng: "What is his name?", ph: "Type Chinese..." },
+                    { num: 38, eng: "Which computer do you want?", ph: "Type Chinese..." },
+                    { num: 39, eng: "I am very good, and you?", ph: "Type Chinese..." },
+                    { num: 40, eng: "Where are you going?", ph: "Type Chinese..." }
+                ]
+            },
+            4: {
+                title: "Cumulative Test (Batch 4)",
+                desc: "Complete all 40 questions to verify your mastery of descriptive states and pronouns.",
+                s1: [
+                    { q: "朋友在跑步。", a: ["The friend is swimming.", "The friend is running."], idx: 1 },
+                    { q: "我想去旅游。", a: ["I want to study.", "I want to travel."], idx: 2 },
+                    { q: "这个药很苦。", a: ["This fruit is sweet.", "This medicine is bitter."], idx: 3 },
+                    { q: "他很瘦。", a: ["He is tall.", "He is thin."], idx: 4 },
+                    { q: "请坐下。", a: ["Please stand up.", "Please sit down."], idx: 5 },
+                    { q: "我太累了。", a: ["I am very busy.", "I am too tired."], idx: 6 },
+                    { q: "别笑。", a: ["Do not cry.", "Do not laugh."], idx: 7 },
+                    { q: "我不知道。", a: ["I don't have.", "I don't know."], idx: 8 }
+                ],
+                s2: [
+                    { num: 9, pin: "piányi", ph: "English meaning..." },
+                    { num: 10, pin: "piàoliang", ph: "English meaning..." },
+                    { num: 11, pin: "píngguǒ", ph: "English meaning..." },
+                    { num: 12, pin: "qǐchuáng", ph: "English meaning..." },
+                    { num: 13, pin: "qiān", ph: "English meaning..." },
+                    { num: 14, pin: "qián", ph: "English meaning..." },
+                    { num: 15, pin: "rè", ph: "English meaning..." },
+                    { num: 16, pin: "rènshi", ph: "English meaning..." }
+                ],
+                s3: [
+                    { num: 17, char: "请", ph: "English..." },
+                    { num: 18, char: "去", ph: "English..." },
+                    { num: 19, char: "商店", ph: "English..." },
+                    { num: 20, char: "上午", ph: "English..." },
+                    { num: 21, char: "上班", ph: "English..." },
+                    { num: 22, char: "说话", ph: "English..." },
+                    { num: 23, char: "水果", ph: "English..." },
+                    { num: 24, char: "手机", ph: "English..." }
+                ],
+                s4: [
+                    { num: 25, eng: "Seven", ph: "Chinese/Pinyin..." },
+                    { num: 26, eng: "Money", ph: "Chinese/Pinyin..." },
+                    { num: 27, eng: "Who", ph: "Chinese/Pinyin..." },
+                    { num: 28, eng: "What", ph: "Chinese/Pinyin..." },
+                    { num: 29, eng: "To sleep", ph: "Chinese/Pinyin..." },
+                    { num: 30, eng: "Bookstore", ph: "Chinese/Pinyin..." },
+                    { num: 31, eng: "To be (am, is, are)", ph: "Chinese/Pinyin..." },
+                    { num: 32, eng: "Years old", ph: "Chinese/Pinyin..." }
+                ],
+                s5: [
+                    { num: 33, eng: "He is my good friend.", ph: "Type Chinese..." },
+                    { num: 34, eng: "The apples here are cheap.", ph: "Type Chinese..." },
+                    { num: 35, eng: "What is your mobile number?", ph: "Type Chinese..." },
+                    { num: 36, eng: "Excuse me, is he here?", ph: "Type Chinese..." },
+                    { num: 37, eng: "We are in class.", ph: "Type Chinese..." },
+                    { num: 38, eng: "Don't speak / Don't talk.", ph: "Type Chinese..." },
+                    { num: 39, eng: "He is my teacher.", ph: "Type Chinese..." },
+                    { num: 40, eng: "Where are they going?", ph: "Type Chinese..." }
+                ]
+            },
+            5: {
+                title: "Cumulative Test (Batch 5)",
+                desc: "Complete all 40 questions to verify your mastery of daily interactions, verbs, and question structures.",
+                s1: [
+                    { q: "今天天气怎么样？", a: ["What are you doing?", "How is the weather today?"], idx: 1 },
+                    { q: "我喜欢听歌。", a: ["I like to listen to songs.", "I want to sing a song."], idx: 2 },
+                    { q: "晚饭吃饺子。", a: ["Eat rice for lunch.", "Eat dumplings for dinner."], idx: 3 },
+                    { q: "王先生在打电话。", a: ["Mr. Wang is on the phone.", "Dad is reading."], idx: 4 },
+                    { q: "在桌子下面。", a: ["On the table.", "Under the table."], idx: 5 },
+                    { q: "他问老师一个问题。", a: ["He asks the teacher a question.", "The teacher is very good."], idx: 6 },
+                    { q: "他是老师，我也是。", a: ["He is a teacher, and I am too.", "I am a student."], idx: 7 },
+                    { q: "我累了，想休息。", a: ["I am sick.", "I am tired and want to rest."], idx: 8 }
+                ],
+                s2: [
+                    { num: 9, pin: "xiànzài", ph: "English meaning..." },
+                    { num: 10, pin: "xǐhuan", ph: "English meaning..." },
+                    { num: 11, pin: "xièxie", ph: "English meaning..." },
+                    { num: 12, pin: "yīfu", ph: "English meaning..." },
+                    { num: 13, pin: "yīshēng", ph: "English meaning..." },
+                    { num: 14, pin: "wǎnshang", ph: "English meaning..." },
+                    { num: 15, pin: "wèntí", ph: "English meaning..." },
+                    { num: 16, pin: "xuéxiào", ph: "English meaning..." }
+                ],
+                s3: [
+                    { num: 17, char: "同学", ph: "English..." },
+                    { num: 18, char: "外边", ph: "English..." },
+                    { num: 19, char: "午饭", ph: "English..." },
+                    { num: 20, char: "小时", ph: "English..." },
+                    { num: 21, char: "新", ph: "English..." },
+                    { num: 22, char: "星期天", ph: "English..." },
+                    { num: 23, char: "学习", ph: "English..." },
+                    { num: 24, char: "要", ph: "English..." }
+                ],
+                s4: [
+                    { num: 25, eng: "To play / have fun", ph: "Chinese/Pinyin..." },
+                    { num: 26, eng: "Weather", ph: "Chinese/Pinyin..." },
+                    { num: 27, eng: "Late", ph: "Chinese/Pinyin..." },
+                    { num: 28, eng: "Five", ph: "Chinese/Pinyin..." },
+                    { num: 29, eng: "To rain", ph: "Chinese/Pinyin..." },
+                    { num: 30, eng: "Small", ph: "Chinese/Pinyin..." },
+                    { num: 31, eng: "To rest", ph: "Chinese/Pinyin..." },
+                    { num: 32, eng: "Also / too", ph: "Chinese/Pinyin..." }
+                ],
+                s5: [
+                    { num: 33, eng: "Great! / Too good!", ph: "Type Chinese..." },
+                    { num: 34, eng: "Did you hear?", ph: "Type Chinese..." },
+                    { num: 35, eng: "Hello, who are you?", ph: "Type Chinese..." },
+                    { num: 36, eng: "Let's go together.", ph: "Type Chinese..." },
+                    { num: 37, eng: "Dad finishes work at six.", ph: "Type Chinese..." },
+                    { num: 38, eng: "I want to buy a new phone.", ph: "Type Chinese..." },
+                    { num: 39, eng: "These books are mine.", ph: "Type Chinese..." },
+                    { num: 40, eng: "Please write your name.", ph: "Type Chinese..." }
+                ]
+            },
+            6: {
+                title: "Cumulative Test (Batch 6)",
+                desc: "Complete all 40 questions to verify your mastery of final pronouns, location words, and everyday questions (251-300).",
+                s1: [
+                    { q: "妹妹喜欢喝牛奶。", a: ["Older brother drinks tea.", "Younger sister likes to drink milk."], idx: 1 },
+                    { q: "请等一下。", a: ["Please write your name.", "Please wait a bit."], idx: 2 },
+                    { q: "今天天气有点儿冷。", a: ["The weather is very hot today.", "Today's weather is a bit cold."], idx: 3 },
+                    { q: "我们正在上课。", a: ["We are finishing class.", "We are currently in class."], idx: 4 },
+                    { q: "我明天去医院看病。", a: ["I will go to school tomorrow.", "I am going to the hospital tomorrow to see a doctor."], idx: 5 },
+                    { q: "这个字怎么写？", a: ["What is your name?", "How is this character written?"], idx: 6 },
+                    { q: "昨天我去了超市。", a: ["Yesterday I went to the supermarket.", "Tomorrow I will go shopping."], idx: 7 },
+                    { q: "他在我的右边。", a: ["He is in front of me.", "He is on my right side."], idx: 8 }
+                ],
+                s2: [
+                    { num: 9, pin: "nǚpéngyou", ph: "English meaning..." },
+                    { num: 10, pin: "yǐzi", ph: "English meaning..." },
+                    { num: 11, pin: "yuán", ph: "English meaning..." },
+                    { num: 12, pin: "zǎofàn", ph: "English meaning..." },
+                    { num: 13, pin: "zhèbiān", ph: "English meaning..." },
+                    { num: 14, pin: "zhīdao", ph: "English meaning..." },
+                    { num: 15, pin: "zhōngwǔ", ph: "English meaning..." },
+                    { num: 16, pin: "zuò fàn", ph: "English meaning..." }
+                ],
+                s3: [
+                    { num: 17, char: "女儿", ph: "English..." },
+                    { num: 18, char: "一半", ph: "English..." },
+                    { num: 19, char: "再见", ph: "English..." },
+                    { num: 20, char: "找", ph: "English..." },
+                    { num: 21, char: "这些", ph: "English..." },
+                    { num: 22, char: "中国", ph: "English..." },
+                    { num: 23, char: "桌子", ph: "English..." },
+                    { num: 24, char: "坐", ph: "English..." }
+                ],
+                s4: [
+                    { num: 25, eng: "Lady / Ms.", ph: "Chinese/Pinyin..." },
+                    { num: 26, eng: "A little bit", ph: "Chinese/Pinyin..." },
+                    { num: 27, eng: "Month / Moon", ph: "Chinese/Pinyin..." },
+                    { num: 28, eng: "Early", ph: "Chinese/Pinyin..." },
+                    { num: 29, eng: "How about it", ph: "Chinese/Pinyin..." },
+                    { num: 30, eng: "Really / Truly", ph: "Chinese/Pinyin..." },
+                    { num: 31, eng: "Middle school", ph: "Chinese/Pinyin..." },
+                    { num: 32, eng: "Yesterday", ph: "Chinese/Pinyin..." }
+                ],
+                s5: [
+                    { num: 33, eng: "Younger sister likes to drink milk.", ph: "Type Chinese..." },
+                    { num: 34, eng: "Please wait a bit.", ph: "Type Chinese..." },
+                    { num: 35, eng: "Today is really hot!", ph: "Type Chinese..." },
+                    { num: 36, eng: "We are currently in class.", ph: "Type Chinese..." },
+                    { num: 37, eng: "How is the weather today?", ph: "Type Chinese..." },
+                    { num: 38, eng: "I know his name.", ph: "Type Chinese..." },
+                    { num: 39, eng: "He is on my right side.", ph: "Type Chinese..." },
+                    { num: 40, eng: "What are you doing?", ph: "Type Chinese..." }
+                ]
+            }
+        };
+
+        window.onload = function() {
+            switchBatch(1);
+        };
+
+        function switchBatch(batchNum) {
+            currentBatch = batchNum;
+            
+            // Highlight active navigation tab
+            for (let i = 1; i <= 6; i++) {
+                const btn = document.getElementById(`btn-batch-${i}`);
+                if (btn) {
+                    if (i === batchNum) {
+                        btn.className = "px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow-md hover:bg-blue-700 transition-all duration-150 border border-blue-600";
+                    } else {
+                        btn.className = "px-6 py-3 font-bold rounded-lg transition-all duration-150 shadow-sm border border-gray-200 bg-white text-gray-700 hover:bg-gray-50";
+                    }
+                }
+            }
+
+            // Update Header labels
+            document.getElementById('dashboard-title').innerText = `HSK 3.1 (2026) Level 1 Mastery Suite - Batch ${batchNum}`;
+            document.getElementById('dashboard-subtitle').innerText = `Batch ${batchNum}: Words ${((batchNum - 1) * 50) + 1} to ${batchNum * 50}. Core characters, pinyin, and layered examples.`;
+
+            // Populate Vocabulary List
+            populateVocabulary(batchNum);
+
+            // Populate Test Content
+            populateTest(batchNum);
+        }
+
+        function populateVocabulary(batchNum) {
+            const data = hskData[batchNum];
+            const listContainer = document.getElementById('vocab-list');
+            listContainer.innerHTML = '';
+
+            data.forEach(item => {
+                const row = document.createElement('div');
+                // Clean 4-column Grid layout matching exactly the width and column sizes: grid-cols-[1.2fr_1.2fr_1.2fr_2.5fr]
+                row.className = "grid grid-cols-[1.2fr_1.2fr_1.2fr_2.5fr] gap-4 items-center p-5 border-b border-gray-200 hover:bg-blue-50 transition-colors";
+                
+                row.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl md:text-3xl font-extrabold text-gray-950">${item[0]}</span>
+                        <button onclick="playAudio('${item[0]}')" class="text-blue-500 hover:text-blue-700 text-2xl focus:outline-none" title="Play Character">🔊</button>
+                    </div>
+                    <div class="text-lg md:text-xl font-medium text-gray-800">${item[1]}</div>
+                    <div class="text-base md:text-lg text-gray-600 font-medium">${item[2]}</div>
+                    <div class="flex items-center justify-between gap-3">
+                        <!-- Example layout explicitly stacked vertically: Chinese (bold/neutral) on Top, Pinyin/English (dark blue) below -->
+                        <div class="flex flex-col">
+                            <span class="text-lg font-bold text-gray-950">${item[3]}</span>
+                            <span class="text-sm font-medium text-blue-900 mt-1">${item[4]}</span>
+                        </div>
+                        <button onclick="playAudio('${item[3]}')" class="text-blue-500 hover:text-blue-700 text-2xl shrink-0 focus:outline-none" title="Play Sentence">🔊</button>
+                    </div>
+                `;
+                listContainer.appendChild(row);
+            });
+        }
+
+        function populateTest(batchNum) {
+            const test = testDatabase[batchNum];
+            const testContainer = document.getElementById('dynamic-test-section');
+            
+            let s1Html = '';
+            test.s1.forEach((item, index) => {
+                s1Html += `
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:shadow-sm transition-shadow">
+                        <div class="flex items-center gap-3">
+                            <span class="font-bold text-blue-800 w-6">${index + 1}.</span>
+                            <button onclick="playAudio('${item.q}')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded font-semibold text-sm transition-colors">🔊 Listen Prompt</button>
+                        </div>
+                        <select id="s1-ans-${index}" class="border border-gray-300 p-2 rounded flex-1 md:max-w-md focus:ring-2 focus:ring-blue-400 focus:outline-none bg-white font-medium text-gray-700">
+                            <option value="">-- Choose matching translation --</option>
+                            <option value="${item.a[0]}">${item.a[0]}</option>
+                            <option value="${item.a[1]}">${item.a[1]}</option>
+                        </select>
+                    </div>
+                `;
+            });
+
+            let s2Html = '';
+            test.s2.forEach(item => {
+                s2Html += `
+                    <div class="flex items-center gap-4 p-2 bg-gray-50 rounded-lg border border-gray-100">
+                        <span class="font-bold text-blue-800 w-8 text-right">${item.num}.</span>
+                        <span class="w-32 font-mono text-lg text-blue-900 font-semibold">${item.pin}</span>
+                        <input type="text" id="s2-ans-${item.num}" class="border border-gray-300 p-2 rounded flex-1 focus:ring-2 focus:ring-blue-400 focus:outline-none bg-white text-gray-800" placeholder="${item.ph}">
+                    </div>
+                `;
+            });
+
+            let s3Html = '';
+            test.s3.forEach(item => {
+                s3Html += `
+                    <div class="flex items-center gap-4 p-2 bg-gray-50 rounded-lg border border-gray-100">
+                        <span class="font-bold text-blue-800 w-8 text-right">${item.num}.</span>
+                        <span class="w-32 text-xl font-bold text-gray-900">${item.char}</span>
+                        <input type="text" id="s3-ans-${item.num}" class="border border-gray-300 p-2 rounded flex-1 focus:ring-2 focus:ring-blue-400 focus:outline-none bg-white text-gray-800" placeholder="${item.ph}">
+                    </div>
+                `;
+            });
+
+            let s4Html = '';
+            test.s4.forEach(item => {
+                s4Html += `
+                    <div class="flex items-center gap-4 p-2 bg-gray-50 rounded-lg border border-gray-100">
+                        <span class="font-bold text-blue-800 w-8 text-right">${item.num}.</span>
+                        <span class="w-48 font-medium text-gray-800">${item.eng}</span>
+                        <input type="text" id="s4-ans-${item.num}" class="border-b-2 border-blue-300 p-2 flex-1 focus:border-blue-600 focus:outline-none bg-transparent text-gray-950 font-bold" placeholder="${item.ph}">
+                    </div>
+                `;
+            });
+
+            let s5Html = '';
+            test.s5.forEach(item => {
+                s5Html += `
+                    <div class="flex flex-col md:flex-row md:items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <span class="font-bold text-blue-800 w-8">${item.num}.</span>
+                        <span class="w-64 font-medium text-gray-800">${item.eng}</span>
+                        <input type="text" id="s5-ans-${item.num}" class="border border-gray-300 p-2 rounded flex-1 focus:ring-2 focus:ring-blue-400 focus:outline-none bg-white text-gray-950 font-bold" placeholder="${item.ph}">
+                    </div>
+                `;
+            });
+
+            testContainer.innerHTML = `
+                <h2 class="text-3xl font-extrabold text-gray-900 mb-2">${test.title}</h2>
+                <p class="text-gray-600 mb-8 text-base md:text-lg">${test.desc}</p>
+                
+                <!-- Section 1 -->
+                <div class="mb-8 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                    <h3 class="text-xl md:text-2xl font-bold text-blue-800 mb-4 border-b pb-2">1. Listening Comprehension (1-8)</h3>
+                    <p class="text-gray-500 mb-4 text-sm font-medium">Click the audio button to listen, then select the correct English translation from the dropdown.</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        ${s1Html}
+                    </div>
+                </div>
+
+                <!-- Section 2 -->
+                <div class="mb-8 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                    <h3 class="text-xl md:text-2xl font-bold text-blue-800 mb-4 border-b pb-2">2. Pinyin to English (9-16)</h3>
+                    <p class="text-gray-500 mb-4 text-sm font-medium">Type the correct English translation for each Pinyin representation.</p>
+                    <div class="grid md:grid-cols-2 gap-x-8 gap-y-4">
+                        ${s2Html}
+                    </div>
+                </div>
+
+                <!-- Section 3 -->
+                <div class="mb-8 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                    <h3 class="text-xl md:text-2xl font-bold text-blue-800 mb-4 border-b pb-2">3. Character Translation (17-24)</h3>
+                    <p class="text-gray-500 mb-4 text-sm font-medium">Identify the meaning of these written Chinese characters.</p>
+                    <div class="grid md:grid-cols-2 gap-x-8 gap-y-4">
+                        ${s3Html}
+                    </div>
+                </div>
+
+                <!-- Section 4 -->
+                <div class="mb-8 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                    <h3 class="text-xl md:text-2xl font-bold text-blue-800 mb-4 border-b pb-2">4. English to Chinese (25-32)</h3>
+                    <p class="text-gray-500 mb-4 text-sm font-medium">Type the Chinese characters or Pinyin equivalents for the given English translation.</p>
+                    <div class="grid md:grid-cols-2 gap-x-8 gap-y-4">
+                        ${s4Html}
+                    </div>
+                </div>
+
+                <!-- Section 5 -->
+                <div class="mb-8 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                    <h3 class="text-xl md:text-2xl font-bold text-blue-800 mb-4 border-b pb-2">5. Sentence Building & Grammar (33-40)</h3>
+                    <p class="text-gray-500 mb-4 text-sm font-medium">Translate the English sentences into full written Chinese structures.</p>
+                    <div class="space-y-4">
+                        ${s5Html}
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <div class="text-center mt-8">
+                    <button onclick="revealAnswers()" class="px-8 py-3 bg-blue-600 text-white font-extrabold rounded-lg shadow-lg hover:bg-blue-700 hover:shadow-xl transition-all duration-150">Grade Test & Show Answers</button>
+                    <p id="grade-summary" class="mt-4 text-xl font-bold text-green-700 hidden"></p>
+                </div>
+            `;
+        }
+
+        function playAudio(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'zh-CN';
+                u.rate = 0.85; 
+                window.speechSynthesis.speak(u);
+            } else {
+                console.warn("Speech Synthesis not supported in this environment.");
+            }
+        }
+
+        function revealAnswers() {
+            const summary = document.getElementById('grade-summary');
+            summary.innerText = "Assessment graded! Scroll through your inputs to check your answers against the vocabulary lists.";
+            summary.classList.remove('hidden');
+            summary.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
