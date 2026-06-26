@@ -588,55 +588,40 @@
             `;
         }
 
+        // Create a single, reusable audio element to comply with mobile media policies
+        const globalAudioPlayer = new Audio();
+
         function playAudio(text) {
             // Clean text (strips out any English translations separated by hyphens)
             const cleanText = text.split('-')[0].trim();
 
+            // Mobile Browser Fix: Browsers block .play() if it is delayed by async checks or setTimeouts.
+            // It MUST be called synchronously during the button click.
+            // We use Cloud TTS as the primary engine to bypass native Android OS bugs entirely.
+            const url = 'https://translate.google.com/translate_tts?ie=UTF-8&tl=zh-CN&client=tw-ob&q=' + encodeURIComponent(cleanText);
+            
+            globalAudioPlayer.src = url;
+            globalAudioPlayer.play().catch(err => {
+                console.warn("Cloud TTS failed or blocked. Falling back to native device TTS.", err);
+                playNativeTTS(cleanText);
+            });
+        }
+
+        function playNativeTTS(text) {
             if ('speechSynthesis' in window) {
-                // Bugfix for Android: Resume the engine before speaking to un-jam it
-                window.speechSynthesis.resume();
-                window.speechSynthesis.cancel();
-                
-                const u = new SpeechSynthesisUtterance(cleanText);
+                window.speechSynthesis.cancel(); // Clear queue
+                const u = new SpeechSynthesisUtterance(text);
                 u.lang = 'zh-CN';
                 u.rate = 0.85; 
                 
-                // Explicitly find and assign a Chinese voice (crucial for Chrome Mobile)
                 const voices = window.speechSynthesis.getVoices();
                 const zhVoice = voices.find(v => v.lang.includes('zh') || v.lang.toLowerCase().includes('cmn') || v.name.toLowerCase().includes('chinese'));
-                if (zhVoice) {
-                    u.voice = zhVoice;
-                }
+                if (zhVoice) u.voice = zhVoice;
 
-                // If the native TTS engine throws an error, fallback to cloud audio
-                u.onerror = function() {
-                    console.warn("Native TTS Error, switching to fallback.");
-                    playFallbackAudio(cleanText);
-                };
-
+                // Android Garbage Collection bugfix: attach to window so it isn't deleted mid-sentence
+                window.mobileTtsHack = u; 
                 window.speechSynthesis.speak(u);
-
-                // Android Brave/Chrome Shield Bug: Speak is called but silently blocked.
-                // We check if it's actually speaking after 300ms. If not, force the fallback.
-                setTimeout(() => {
-                    if (!window.speechSynthesis.speaking && !window.speechSynthesis.pending) {
-                        playFallbackAudio(cleanText);
-                    }
-                }, 300);
-
-            } else {
-                playFallbackAudio(cleanText);
             }
-        }
-
-        // Reliable fallback using a public dictionary TTS API (Bypasses Brave Shields & Android Web Speech bugs)
-        function playFallbackAudio(text) {
-            // Google Translate Widget TTS (tw-ob) safely plays in HTML Audio elements on mobile
-            const url = 'https://translate.google.com/translate_tts?ie=UTF-8&tl=zh-CN&client=tw-ob&q=' + encodeURIComponent(text);
-            const audio = new Audio(url);
-            audio.play().catch(err => {
-                console.warn("Fallback audio also failed. Please check browser media permissions.", err);
-            });
         }
 
         function revealAnswers() {
