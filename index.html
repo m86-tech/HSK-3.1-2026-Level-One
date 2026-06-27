@@ -3,12 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HSK Mastery Suite (Frequency Ordered)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .table-grid { 
             display: grid; 
-            /* Added a new column for Grammar (1fr), adjusted Example to 1.5fr */
+            /* 6 Columns: No, Char, Pinyin, Meaning, Example, Grammar */
             grid-template-columns: 50px 80px 100px 120px 1.5fr 1.2fr; 
             gap: 1.5rem; 
             align-items: start;
@@ -69,7 +74,7 @@
     </div>
 
     <script>
-        // NEW ARRAY FORMAT: [Char, Pinyin, Meaning, Ex_CN, Ex_Pinyin, Ex_EN, Grammar]
+        // ARRAY FORMAT: [Char, Pinyin, Meaning, Ex_CN, Ex_Pinyin, Ex_EN, Grammar]
         const rawDB = [
             // BATCH 1: Core Pronouns, Particles, Copulas & Most Frequent Adverbs
             ["我", "wǒ", "I / me", "我是学生。", "Wǒ shì xuésheng.", "I am a student.", "我 (wǒ) doesn't change form whether it's 'I' or 'me'."],
@@ -225,8 +230,10 @@
             ["出租车", "chūzūchē", "taxi", "坐出租车。", "Zuò chūzūchē.", "Take a taxi.", ""],
             ["票", "piào", "ticket", "买票。", "Mǎi piào.", "Buy a ticket.", ""],
             ["猫", "māo", "cat", "我的猫。", "Wǒ de māo.", "My cat.", ""],
-            ["狗", "gǒu", "dog", "我的狗。", "Wǒ de gǒu.", "My dog.", ""],
+            ["狗", "gǒu", "dog", "我的狗。", "Wǒ de gǒu.", "My dog.", ""]
+        ];
 
+        const rawDB2 = [
             // BATCH 4: Adjectives, States, Conjunctions
             ["好", "hǎo", "good", "很好。", "Hěn hǎo.", "Very good.", ""],
             ["大", "dà", "big", "很大。", "Hěn dà.", "Very big.", ""],
@@ -277,10 +284,8 @@
             ["吧", "ba", "suggestion", "走吧。", "Zǒu ba.", "Let's go.", "吧 (ba) makes 'let's go' sound like a soft suggestion."],
             ["得", "de", "degree particle", "跑得快。", "Pǎo de kuài.", "Run fast.", "得 (de) connects 'run' with 'fast' to describe the action."],
             ["着", "zhe", "continuous", "开着门。", "Kāi zhe mén.", "The door is open.", "着 (zhe) shows the door is currently staying open."],
-            ["过", "guo", "experience", "我去过。", "Wǒ qù guò.", "I have been there.", "过 (guo) shows you have experienced going there before."]
-        ];
+            ["过", "guo", "experience", "我去过。", "Wǒ qù guò.", "I have been there.", "过 (guo) shows you have experienced going there before."],
 
-        const rawDB2 = [
             // BATCH 5: Verbs (Interactions, Hobbies, Actions)
             ["喜欢", "xǐhuan", "like", "我喜欢你。", "Wǒ xǐhuan nǐ.", "I like you.", ""],
             ["爱", "ài", "love", "我爱你。", "Wǒ ài nǐ.", "I love you.", ""],
@@ -445,6 +450,7 @@
                 const rowNum = startIndex + index + 1;
                 const [char, pinyin, meaning, cnText, pyText, enText, grammar] = item;
 
+                // Create the dedicated grammar column. If empty, show a dash.
                 const grammarHtml = grammar ? 
                     `<div class="p-3 bg-purple-50 text-purple-900 text-sm rounded-lg border border-purple-100 flex items-start gap-2 shadow-sm">
                         <span title="Grammar Note" class="text-base">💡</span> <span class="leading-tight">${grammar}</span>
@@ -525,11 +531,13 @@
             container.innerHTML = html;
         }
 
+        // Initialize automatically on load without needing the broken overlay
         window.onload = () => {
-            document.getElementById('unlockOverlay').style.display = 'none';
-            document.getElementById('mainContent').style.display = 'block';
             initTabs();
             renderBatch();
+            
+            // Just to ensure display logic is clean
+            document.getElementById('mainContent').style.display = 'block';
         };
     </script>
 </body>
