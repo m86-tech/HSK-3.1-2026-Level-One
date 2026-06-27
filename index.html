@@ -3,11 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HSK Mastery Suite (Frequency Ordered)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -97,6 +92,7 @@
             ["了", "le", "particle", "下雨了。", "Xiàyǔ le.", "It started raining.", "了 (le) shows a new situation: it started raining."],
             ["在", "zài", "at / in / on", "他在家。", "Tā zài jiā.", "He is at home.", "在 (zài) acts as a verb here meaning 'to be at'."],
             ["是", "shì", "is / am / are", "我是中国人。", "Wǒ shì Zhōngguó rén.", "I am Chinese.", "是 (shì) connects two nouns (I = Chinese)."],
+            
             ["有", "yǒu", "have", "我有一个苹果。", "Wǒ yǒu yí ge píngguǒ.", "I have an apple.", "有 (yǒu) means 'to possess'. Never use 不 with it."],
             ["不", "bù", "not / no", "我不去。", "Wǒ bú qù.", "I am not going.", "不 (bù) negates present or future actions."],
             ["没", "méi", "not have / didn't", "我没有钱。", "Wǒ méiyǒu qián.", "I have no money.", "没 (méi) is the ONLY word that can negate 有 (have)."],
@@ -165,6 +161,7 @@
             ["岁", "suì", "years old", "我十岁。", "Wǒ shí suì.", "I am ten years old.", ""],
             ["钱", "qián", "money", "多少钱？", "Duōshao qián?", "How much money?", ""],
             ["块", "kuài", "yuan (money)", "十块钱。", "Shí kuài qián.", "Ten yuan.", ""],
+            
             ["衣服", "yīfu", "clothes", "买衣服。", "Mǎi yīfu.", "Buy clothes.", ""],
             ["水", "shuǐ", "water", "喝水。", "Hē shuǐ.", "Drink water.", ""],
             ["茶", "chá", "tea", "喝茶。", "Hē chá.", "Drink tea.", ""],
@@ -202,6 +199,7 @@
             ["妹妹", "mèimei", "younger sister", "我妹妹。", "Wǒ mèimei.", "My younger sister.", ""],
             ["丈夫", "zhàngfu", "husband", "我的丈夫。", "Wǒ de zhàngfu.", "My husband.", ""],
             ["妻子", "qīzi", "wife", "我的妻子。", "Wǒ de qīzi.", "My wife.", ""],
+            
             ["孩子", "háizi", "child", "好孩子。", "Hǎo háizi.", "Good child.", ""],
             ["大家", "dàjiā", "everyone", "大家好。", "Dàjiā hǎo.", "Hello everyone.", ""],
             ["家", "jiā", "home", "回家。", "Huí jiā.", "Go home.", ""],
@@ -399,23 +397,38 @@
 
         let currentBatch = 1;
 
-        // Ultimate Audio Fix: HTML5 Audio streaming from Youdao
-        // This is 100% reliable on Android as it bypasses the buggy SpeechSynthesis API
-        const globalAudio = new Audio();
-
         const vocabContainer = document.getElementById('vocabContainer');
         const tabContainer = document.getElementById('tabContainer');
 
+        // Robust audio function with triple-fallback
         function playAudio(text) {
-            // Strip punctuation out completely to prevent Youdao API from failing
-            // We only send purely Chinese characters to the API
-            const cleanText = text.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '').trim();
+            // Strip out potential HTML breaking quotes, but keep Chinese punctuation (like 。)
+            // APIs need punctuation to properly pace the sentence reading.
+            const cleanText = text.replace(/['"]/g, '').trim();
             if (!cleanText) return;
-            
-            const url = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(cleanText)}&le=zh`;
-            globalAudio.src = url;
-            globalAudio.play().catch(error => {
-                console.warn("Network audio failed", error);
+
+            // 1st Attempt: Google TTS (Most reliable standard proxy URL)
+            const url1 = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=zh-CN&q=${encodeURIComponent(cleanText)}`;
+            const audio1 = new Audio(url1);
+
+            audio1.play().catch(e1 => {
+                console.warn("Primary audio failed, trying Youdao API...", e1);
+                
+                // 2nd Attempt: Youdao TTS
+                const url2 = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(cleanText)}&le=zh`;
+                const audio2 = new Audio(url2);
+                
+                audio2.play().catch(e2 => {
+                    console.warn("Secondary audio failed, trying Native Speech Synthesis...", e2);
+                    
+                    // 3rd Attempt: Native OS SpeechSynthesis
+                    if ('speechSynthesis' in window) {
+                        window.speechSynthesis.cancel();
+                        const utterance = new SpeechSynthesisUtterance(cleanText);
+                        utterance.lang = 'zh-CN';
+                        window.speechSynthesis.speak(utterance);
+                    }
+                });
             });
         }
 
@@ -538,6 +551,7 @@
             
             // Just to ensure display logic is clean
             document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('unlockOverlay').style.display = 'none';
         };
     </script>
 </body>
