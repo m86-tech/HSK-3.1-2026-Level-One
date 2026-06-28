@@ -13,12 +13,15 @@
             gap: 1.25rem; 
             align-items: start;
         }
+        
+        /* Tablet scaling */
         @media (max-width: 1024px) {
             .table-grid { 
                 grid-template-columns: 40px 60px 80px minmax(90px, 1fr) minmax(150px, 2fr) minmax(120px, 1.5fr); 
                 gap: 1rem;
             }
         }
+        
         /* Mobile Stacking View */
         @media (max-width: 768px) {
             .table-grid { 
@@ -49,10 +52,11 @@
             <p class="text-lg text-slate-600 font-medium">300 Words • Frequency Ordered • Cumulative Tests</p>
         </header>
         
+        <!-- Batch Navigation Tabs -->
         <div class="flex flex-wrap justify-center gap-3 mb-10" id="tabContainer"></div>
 
+        <!-- 6-Column Vocabulary Dashboard -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-12">
-            <!-- 6 Column Header -->
             <div class="bg-slate-100 p-5 table-grid header-row font-bold text-slate-700 border-b uppercase tracking-wider text-sm">
                 <div class="text-slate-400">No.</div>
                 <div>Char</div>
@@ -64,6 +68,7 @@
             <div id="vocabContainer" class="divide-y divide-slate-100"></div>
         </div>
 
+        <!-- Cumulative Test Section -->
         <div id="testContainer" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-10 mb-12">
             <h2 class="text-3xl font-extrabold text-blue-900 mb-8 border-b-4 border-blue-100 pb-4 inline-block" id="testTitle">Cumulative Test</h2>
             <div id="testContent" class="space-y-8"></div>
@@ -392,11 +397,10 @@
 
         let currentBatch = 1;
         
-        // CRITICAL: We must store the utterances in a global array. 
-        // If we don't, Chrome deletes the variable before the phone finishes speaking!
+        // Android Audio Fix: Store utterances in a global array to completely prevent 
+        // Chrome's aggressive Garbage Collection from deleting them mid-sentence.
         window.speechUtterances = [];
-
-        // Global flag to track if we've bypassed Android's strict Audio security sandbox
+        
         let audioInitialized = false;
 
         // Unlock Native Android Audio silently on the very first touch of the screen
@@ -417,31 +421,25 @@
         }, { once: true });
 
         function playAudio(text) {
-            if (!('speechSynthesis' in window)) {
-                console.warn("Speech Synthesis is not supported in this browser.");
-                return;
-            }
+            if (!('speechSynthesis' in window)) return;
             
-            // Stop current audio to prevent overlapping
             window.speechSynthesis.cancel();
             
-            // Do NOT strip Chinese punctuation (。 ？), otherwise some API wrappers fail to parse it.
-            // Only strip the English translation part entirely.
+            // Clean text (remove English translations in parens entirely)
+            // DO NOT strip Chinese punctuation, as it helps the TTS engine pace the sentence.
             const cleanText = text.replace(/\(.*?\)/g, '').trim();
             
             const utterance = new SpeechSynthesisUtterance(cleanText);
             utterance.lang = 'zh-CN';
-            utterance.rate = 0.85; // Slightly slower for better learner comprehension
+            utterance.rate = 0.85; 
             
-            // Push to global array to prevent Android Garbage Collection bug
+            // Push to global array to prevent Android GC dropouts
             window.speechUtterances.push(utterance);
-            
-            // Keep array from growing infinitely and consuming memory
             if(window.speechUtterances.length > 20) {
                 window.speechUtterances.shift();
             }
             
-            // Small delay fixes an Android race condition where cancel() kills the new utterance
+            // 50ms delay perfectly bypasses the Android cancel/speak race condition bug
             setTimeout(() => {
                 window.speechSynthesis.speak(utterance);
             }, 50);
@@ -558,7 +556,6 @@
         // Initialize automatically on load
         window.onload = () => {
             document.getElementById('mainContent').style.display = 'block';
-            document.getElementById('unlockOverlay').style.display = 'none';
             initTabs();
             renderBatch();
         };
