@@ -8,8 +8,8 @@
     <style>
         .table-grid { 
             display: grid; 
-            /* Fluid columns: minimum widths ensure legibility, fr units allow scaling */
-            grid-template-columns: 40px 70px 90px minmax(100px, 1fr) minmax(200px, 2fr) minmax(150px, 1.5fr); 
+            /* WIDENED CHAR COLUMN: Changed from 70px to 110px to prevent character wrapping */
+            grid-template-columns: 40px 110px 100px minmax(100px, 1fr) minmax(200px, 2fr) minmax(150px, 1.5fr); 
             gap: 1.25rem; 
             align-items: start;
         }
@@ -17,7 +17,7 @@
         /* Tablet scaling */
         @media (max-width: 1024px) {
             .table-grid { 
-                grid-template-columns: 40px 60px 80px minmax(90px, 1fr) minmax(150px, 2fr) minmax(120px, 1.5fr); 
+                grid-template-columns: 40px 100px 90px minmax(90px, 1fr) minmax(150px, 2fr) minmax(120px, 1.5fr); 
                 gap: 1rem;
             }
         }
@@ -77,36 +77,36 @@
 
     <script>
         const rawDB = [
-            // BATCH 1 (1-50): Core Pronouns, Particles, Copulas
-            ["我", "wǒ", "I / me", "我是学生。(I am a student.)", "Acts as subject or object without changing form."],
+            // BATCH 1 (1-50): Core Pronouns, Particles, Copulas & Most Frequent Adverbs
+            ["我", "wǒ", "I / me", "我是学生。(I am a student.)", "Pronoun: Acts as subject or object without morphological changes."],
             ["你", "nǐ", "you", "你好。(Hello.)", ""],
             ["他", "tā", "he / him", "他是老师。(He is a teacher.)", ""],
             ["她", "tā", "she / her", "她是医生。(She is a doctor.)", ""],
-            ["我们", "wǒmen", "we / us", "我们去学校。(We go to school.)", "Suffix '们' (men) makes 'I' (我) plural."],
+            ["我们", "wǒmen", "we / us", "我们去学校。(We go to school.)", "Grammar: Plural suffix '们' (men) is used for personal pronouns."],
             ["这", "zhè", "this", "这是什么？(What is this?)", ""],
             ["那", "nà", "that", "那是我的书。(That is my book.)", ""],
             ["哪", "nǎ", "which", "你是哪国人？(Which country are you from?)", ""],
             ["谁", "shéi", "who", "他是谁？(Who is he?)", ""],
             ["什么", "shénme", "what", "这是什么？(What is this?)", ""],
-            ["怎么", "zěnme", "how", "怎么去？(How to go?)", "Placed before the verb 'go' (去) to ask method."],
+            ["怎么", "zěnme", "how", "怎么去？(How to go?)", ""],
             ["怎么样", "zěnmeyàng", "how about", "天气怎么样？(How is the weather?)", ""],
-            ["多少", "duōshao", "how many/much", "多少钱？(How much money?)", "Question word: For amounts generally > 10."],
-            ["几", "jǐ", "how many", "几个人？(How many people?)", "Question word: For amounts < 10. Requires measure word."],
-            ["吗", "ma", "question particle", "你好吗？(How are you?)", "Added to end of statement to form yes/no question."],
-            ["呢", "ne", "question particle", "你呢？(And you?)", "Used to bounce a question back to the listener."],
-            ["的", "de", "possessive particle", "我的书。(My book.)", "Links possessor 'my' (我) to object 'book' (书)."],
-            ["了", "le", "particle", "下雨了。(It started raining.)", "Indicates a new situation or completed action."],
-            ["在", "zài", "at / in / on", "他在家。(He is at home.)", "Shows location before the verb, or ongoing action."],
-            ["是", "shì", "is / am / are", "我是中国人。(I am Chinese.)", "Links noun to noun. Never links noun to adjective."],
-            ["有", "yǒu", "have / there is", "我有一个苹果。(I have an apple.)", "Verb: Negated exclusively by '没'."],
-            ["不", "bù", "not / no", "我不去。(I am not going.)", "Adverb: Negates present/future actions and '是'."],
-            ["没", "méi", "not have / didn't", "我没有钱。(I have no money.)", "Adverb: Negates past actions or the verb '有'."],
-            ["很", "hěn", "very", "很好。(Very good.)", "Links nouns to adjectives. Doesn't always mean 'very'."],
+            ["多少", "duōshao", "how many/much", "多少钱？(How much money?)", "Question word: Used for amounts generally greater than 10."],
+            ["几", "jǐ", "how many", "几个人？(How many people?)", "Question word: Used for small numbers (usually under 10)."],
+            ["吗", "ma", "question particle", "你好吗？(How are you?)", "Particle: Added to the end of a statement to form a yes/no question."],
+            ["呢", "ne", "question particle", "你呢？(And you?)", "Particle: Used for reciprocal questions or asking 'where is...'."],
+            ["的", "de", "possessive particle", "我的书。(My book.)", "Particle: Links a possessor to the possessed object."],
+            ["了", "le", "particle", "下雨了。(It started raining.)", "Particle: Indicates a completed action or a change of state."],
+            ["在", "zài", "at / in / on", "他在家。(He is at home.)", "Preposition/Verb: Indicates location or an ongoing action."],
+            ["是", "shì", "is / am / are", "我是中国人。(I am Chinese.)", "Copula: Links noun to noun. Cannot link noun to adjective."],
+            ["有", "yǒu", "have / there is", "我有一个苹果。(I have an apple.)", "Verb: Denotes possession or existence. Negated exclusively by '没'."],
+            ["不", "bù", "not / no", "我不去。(I am not going.)", "Adverb: Negates actions in the present or future."],
+            ["没", "méi", "not have / didn't", "我没有钱。(I have no money.)", "Adverb: Negates past actions or the verb '有' (have)."],
+            ["很", "hěn", "very", "很好。(Very good.)", "Adverb: Often placed before adjectives just to link them."],
             ["太", "tài", "too (much)", "太好了！(That's great!)", ""],
-            ["都", "dōu", "all / both", "我们都去。(We all go.)", "Summarizes multiple subjects before the verb."],
-            ["也", "yě", "also", "我也去。(I also go.)", "Placed before the verb 'go' (去)."],
-            ["和", "hé", "and", "我和你。(You and I.)", "Conjunction: Only connects nouns, NEVER full sentences."],
-            ["个", "gè", "measure word", "一个人。(One person.)", "Universal classifier placed between number and noun."],
+            ["都", "dōu", "all / both", "我们都去。(We all go.)", "Adverb: Placed before the verb to summarize multiple subjects."],
+            ["也", "yě", "also", "我也去。(I also go.)", ""],
+            ["和", "hé", "and", "我和你。(You and I.)", "Conjunction: Only connects nouns or noun phrases, NEVER sentences."],
+            ["个", "gè", "measure word", "一个人。(One person.)", "Classifier: The most common, universal measure word."],
             ["去", "qù", "go", "去学校。(Go to school.)", ""],
             ["来", "lái", "come", "他来了。(He came.)", ""],
             ["做", "zuò", "do / make", "做饭。(Cook food.)", ""],
@@ -119,19 +119,19 @@
             ["写", "xiě", "write", "写字。(Write characters.)", ""],
             ["买", "mǎi", "buy", "买东西。(Buy things.)", ""],
             ["卖", "mài", "sell", "卖水果。(Sell fruit.)", ""],
-            ["想", "xiǎng", "think / want to", "我想回家。(I want to go home.)", "Auxiliary: Expresses a desire or intention."],
-            ["要", "yào", "want / must", "我要这个。(I want this.)", "Stronger than 想. Indicates demand or necessity."],
-            ["会", "huì", "can / know how", "我会说汉语。(I can speak Chinese.)", "Auxiliary: Indicates a learned mental skill."],
-            ["能", "néng", "can / be able", "你能来吗？(Can you come?)", "Auxiliary: Indicates physical ability or circumstance."],
-            ["可以", "kěyǐ", "can / may", "可以吗？(Is it allowed?)", "Auxiliary: Indicates permission from others."],
+            ["想", "xiǎng", "think / want to", "我想回家。(I want to go home.)", "Auxiliary: Indicates a desire or plan to do something."],
+            ["要", "yào", "want / must", "我要这个。(I want this.)", "Verb/Auxiliary: Stronger than 想. Means 'want' or 'need to'."],
+            ["会", "huì", "can / know how", "我会说汉语。(I can speak Chinese.)", "Auxiliary: Indicates a learned skill or future possibility."],
+            ["能", "néng", "can / be able", "你能来吗？(Can you come?)", "Auxiliary: Indicates physical ability or circumstantial possibility."],
+            ["可以", "kěyǐ", "can / may", "可以吗？(Is it allowed?)", "Auxiliary: Indicates permission."],
             ["叫", "jiào", "to be called", "我叫大卫。(My name is David.)", ""],
             ["认识", "rènshi", "to know (a person)", "认识你很高兴。(Nice to meet you.)", ""],
             ["知道", "zhīdào", "to know (a fact)", "我不知道。(I don't know.)", ""],
             ["觉得", "juéde", "to feel / think", "我觉得很好。(I think it's good.)", ""],
 
-            // BATCH 2 (51-100): Numbers, Time
+            // BATCH 2 (51-100): Numbers, Time, and Temporal Nouns
             ["一", "yī", "one", "一个人。(One person.)", ""],
-            ["二", "èr", "two", "二月。(February.)", "Number: Use for counting/dates, NOT with measure words."],
+            ["二", "èr", "two", "二月。(February.)", "Number: Used for counting and ordinal numbers. Do not use with measure words."],
             ["三", "sān", "three", "三天。(Three days.)", ""],
             ["四", "sì", "four", "四个月。(Four months.)", ""],
             ["五", "wǔ", "five", "五本书。(Five books.)", ""],
@@ -143,11 +143,11 @@
             ["零", "líng", "zero", "二零二四年。(Year 2024.)", ""],
             ["百", "bǎi", "hundred", "一百块。(One hundred yuan.)", ""],
             ["千", "qiān", "thousand", "三千。(Three thousand.)", ""],
-            ["点", "diǎn", "o'clock", "两点。(Two o'clock.)", "Measure word for hours."],
+            ["点", "diǎn", "o'clock", "两点。(Two o'clock.)", ""],
             ["分钟", "fēnzhōng", "minute", "十分钟。(Ten minutes.)", ""],
             ["小时", "xiǎoshí", "hour", "一个小时。(One hour.)", ""],
-            ["天", "tiān", "day / sky", "三天。(Three days.)", "Does not require a measure word (e.g. 个)."],
-            ["今天", "jīntiān", "today", "今天很热。(Today is hot.)", "Time nouns are placed at start of sentence or after subject."],
+            ["天", "tiān", "day / sky", "三天。(Three days.)", ""],
+            ["今天", "jīntiān", "today", "今天很热。(Today is hot.)", "Time noun: Often placed at the very beginning of the sentence or after the subject."],
             ["明天", "míngtiān", "tomorrow", "明天见。(See you tomorrow.)", ""],
             ["昨天", "zuótiān", "yesterday", "昨天很冷。(Yesterday was cold.)", ""],
             ["早上", "zǎoshang", "early morning", "早上好。(Good morning.)", ""],
@@ -167,21 +167,21 @@
             ["岁", "suì", "years old", "我十岁。(I am ten years old.)", ""],
             ["钱", "qián", "money", "多少钱？(How much money?)", ""],
             ["块", "kuài", "yuan (money)", "十块钱。(Ten yuan.)", ""],
-            ["半", "bàn", "half", "一半。(Half.)", "Indicates half of a unit (half an hour, half an apple)."],
-            ["两", "liǎng", "two (quantity)", "两个人。(Two people.)", "Must be used instead of '二' with measure words."],
-            ["第一", "dì-yī", "first", "第一名。(First place.)", "Prefix '第' creates ordinal numbers."],
+            ["半", "bàn", "half", "一半。(Half.)", "Number: Used to indicate half of an hour, half of a unit, etc."],
+            ["两", "liǎng", "two (with measure word)", "两个人。(Two people.)", "Number: Must be used instead of '二' when followed by a measure word."],
+            ["第一", "dì-yī", "first", "第一名。(First place.)", ""],
             ["次", "cì", "time (frequency)", "去过一次。(Have gone once.)", ""],
             ["每", "měi", "every", "每天。(Every day.)", ""],
             ["些", "xiē", "some", "一些书。(Some books.)", ""],
-            ["件", "jiàn", "measure word", "一件衣服。(One piece of clothing.)", "Used primarily for clothing, luggage, or matters."],
-            ["本", "běn", "measure word", "一本书。(One book.)", "Used for bound items like books or magazines."],
+            ["件", "jiàn", "measure word (clothes)", "一件衣服。(One piece of clothing.)", ""],
+            ["本", "běn", "measure word for books", "一本书。(One book.)", ""],
             ["人", "rén", "person", "中国人。(Chinese person.)", ""],
             ["大家", "dàjiā", "everyone", "大家好。(Hello everyone.)", ""],
             ["男", "nán", "male", "男人。(Man.)", ""],
             ["女", "nǚ", "female", "女人。(Woman.)", ""],
-            ["先生", "xiānsheng", "Mr. / gentleman", "王先生。(Mr. Wang.)", ""],
+            ["先生", "xiānsheng", "Mr. / husband", "王先生。(Mr. Wang.)", ""],
 
-            // BATCH 3 (101-150): Family, Occupations, Objects
+            // BATCH 3 (101-150): Family, Occupations, and Common Objects
             ["小姐", "xiǎojiě", "Miss", "李小姐。(Miss Li.)", ""],
             ["名字", "míngzi", "name", "你叫什么名字？(What is your name?)", ""],
             ["老师", "lǎoshī", "teacher", "老师好。(Hello teacher.)", ""],
@@ -275,23 +275,23 @@
             ["真", "zhēn", "really", "真漂亮。(Really pretty.)", ""],
             ["非常", "fēicháng", "extremely", "非常好。(Extremely good.)", ""],
             ["最", "zuì", "most", "最好。(The best.)", ""],
-            ["就", "jiù", "then / exactly", "我就来。(I will come right away.)", "Adverb: Indicates immediacy. (I will come 'right away')."],
+            ["就", "jiù", "then / exactly", "我就来。(I will come right away.)", "Adverb: Indicates immediacy or confirms a fact."],
             ["还", "hái", "still / also", "还有谁？(Who else?)", ""],
-            ["再", "zài", "again", "再说一次。(Say it again.)", "Adverb: Indicates action repeated in future."],
+            ["再", "zài", "again", "再说一次。(Say it again.)", "Adverb: Indicates an action to be repeated in the future."],
             ["已经", "yǐjīng", "already", "已经走了。(Already left.)", ""],
-            ["正在", "zhèngzài", "in process of", "正在吃饭。(Currently eating.)", ""],
-            ["别", "bié", "don't", "别走。(Don't leave.)", "Adverb: Used in imperative to stop an action."],
+            ["正在", "zhèngzài", "in the process of", "正在吃饭。(Currently eating.)", ""],
+            ["别", "bié", "don't", "别走。(Don't leave.)", "Adverb: Used for imperative sentences telling someone not to do something."],
             ["一起", "yìqǐ", "together", "一起去。(Go together.)", ""],
             ["为什么", "wèishénme", "why", "为什么不去？(Why not go?)", ""],
-            ["因为", "yīnwèi", "because", "因为下雨。(Because it is raining.)", "Conjunction: Starts cause clause, often pairs with 所以 (so)."],
+            ["因为", "yīnwèi", "because", "因为下雨。(Because it is raining.)", "Conjunction: Used with 所以 (so) to show cause and effect."],
 
-            // BATCH 5 (201-250): Conjunctions, Directions, Prepositions, Action Verbs
-            ["所以", "suǒyǐ", "so", "所以我没去。(So I didn't go.)", "Conjunction: Expresses the result or effect."],
+            // BATCH 5 (201-250): Conjunctions, Directions, Prepositions, and Action Verbs
+            ["所以", "suǒyǐ", "so", "所以我没去。(So I didn't go.)", ""],
             ["但是", "dànshì", "but", "但是我不去。(But I am not going.)", ""],
-            ["虽然", "suīrán", "although", "虽然下雨。(Although it is raining.)", "Conjunction: Starts concession clause, pairs with 但是."],
+            ["虽然", "suīrán", "although", "虽然下雨。(Although it is raining.)", "Conjunction: Used with 但是 (but) to show concession."],
             ["如果", "rúguǒ", "if", "如果下雨。(If it rains.)", ""],
             ["从", "cóng", "from", "从这儿走。(Walk from here.)", ""],
-            ["离", "lí", "away from", "离这很远。(Far from here.)", "Preposition: Expresses physical distance between two points."],
+            ["离", "lí", "away from", "离这很远。(Far from here.)", "Preposition: Used to express distance between A and B."],
             ["向", "xiàng", "towards", "向前走。(Walk forward.)", ""],
             ["比", "bǐ", "compare", "他比我高。(He is taller than me.)", "Preposition: Used for comparison (A + 比 + B + Adjective)."],
             ["里", "lǐ", "inside", "在水里。(In the water.)", ""],
@@ -303,10 +303,10 @@
             ["左边", "zuǒbian", "left side", "在左边。(On the left.)", ""],
             ["右边", "yòubian", "right side", "在右边。(On the right.)", ""],
             ["旁边", "pángbiān", "beside", "在我旁边。(Beside me.)", ""],
-            ["吧", "ba", "suggestion particle", "走吧。(Let's go.)", "Particle: Softens command into a suggestion ('Let us...')."],
-            ["得", "de", "degree particle", "跑得快。(Run fast.)", "Particle: Links verb 'run' to adjective 'fast' to describe execution."],
-            ["着", "zhe", "continuous particle", "开着门。(The door is open.)", "Particle: Shows the action 'open' continues as a state."],
-            ["过", "guo", "experience particle", "我去过。(I have been there.)", "Particle: Denotes action 'go' happened in the past as an experience."],
+            ["吧", "ba", "suggestion particle", "走吧。(Let's go.)", "Particle: Softens the tone of a command or suggestion."],
+            ["得", "de", "degree particle", "跑得快。(Run fast.)", "Particle: Connects a verb to an adjective describing how the action is done."],
+            ["着", "zhe", "continuous particle", "开着门。(The door is open.)", "Particle: Indicates a continuous state resulting from an action."],
+            ["过", "guo", "experience particle", "我去过。(I have been there.)", "Particle: Indicates a past experience."],
             ["喜欢", "xǐhuan", "like", "我喜欢你。(I like you.)", ""],
             ["爱", "ài", "love", "我爱你。(I love you.)", ""],
             ["谢谢", "xièxie", "thank you", "谢谢你。(Thank you.)", ""],
@@ -335,9 +335,9 @@
             ["回答", "huídá", "answer", "回答问题。(Answer question.)", ""],
             ["找", "zhǎo", "look for", "找朋友。(Look for friend.)", ""],
             ["等", "děng", "wait", "等一下。(Wait a moment.)", ""],
-            ["给", "gěi", "give", "给你。(Give to you.)", "Preposition: Translates to 'to' or 'for' (give to you)."],
+            ["给", "gěi", "give", "给你。(Give to you.)", "Preposition/Verb: Can also act as 'for' (打电话给我 = call me)."],
 
-            // BATCH 6 (251-300): Additional Interactions, Hobbies, Weather
+            // BATCH 6 (251-300): Additional Interactions, Hobbies, and Weather Verbs
             ["让", "ràng", "let / make", "让他去。(Let him go.)", ""],
             ["笑", "xiào", "laugh / smile", "他在笑。(He is laughing.)", ""],
             ["懂", "dǒng", "understand", "听懂了。(Understood.)", ""],
@@ -358,7 +358,7 @@
             ["课", "kè", "lesson / class", "上课。(Attend class.)", ""],
             ["汉语", "Hànyǔ", "Chinese language", "学习汉语。(Study Chinese.)", ""],
             ["字", "zì", "character", "写字。(Write characters.)", ""],
-            ["看见", "kànjiàn", "see", "我看见他了。(I saw him.)", "Complement: '见' shows result of action '看' (look)."],
+            ["看见", "kànjiàn", "see", "我看见他了。(I saw him.)", "Verb + Complement: '见' acts as the resultative complement to '看'."],
             ["出", "chū", "go out", "出去。(Go out.)", ""],
             ["进", "jìn", "enter", "请进。(Please come in.)", ""],
             ["回", "huí", "return", "回家。(Go home.)", ""],
@@ -366,16 +366,16 @@
             ["雪", "xuě", "snow", "下雪了。(It is snowing.)", ""],
             ["天气", "tiānqì", "weather", "天气很好。(The weather is good.)", ""],
             ["打电话", "dǎ diànhuà", "make a phone call", "他在打电话。(He is making a call.)", ""],
-            ["帮忙", "bāngmáng", "to help", "请帮个忙。(Please do me a favor.)", "Verb-Object: Cannot put an object directly after it."],
+            ["帮忙", "bāngmáng", "to help", "请帮个忙。(Please do me a favor.)", "Verb-Object structure: Unlike 帮助, you cannot put an object directly after it."],
             ["希望", "xīwàng", "hope", "我希望你能来。(I hope you can come.)", ""],
             ["玩", "wán", "play", "出去玩。(Go out to play.)", ""],
-            ["送", "sòng", "deliver / gift", "送给你。(Give to you as a gift.)", ""],
+            ["送", "sòng", "deliver / give as gift", "送给你。(Give to you as a gift.)", ""],
             ["喂", "wèi", "hello (on phone)", "喂，你好。(Hello [on phone].)", ""],
             ["姓", "xìng", "surname", "我姓王。(My surname is Wang.)", ""],
             ["东西", "dōngxi", "thing", "买东西。(Buy things.)", ""],
-            ["站", "zhàn", "station / stand", "火车站。(Train station.)", ""],
+            ["站", "zhàn", "station / to stand", "火车站。(Train station.)", ""],
             ["树", "shù", "tree", "一棵树。(One tree.)", ""],
-            ["花", "huā", "flower / spend", "开花。(Flowers bloom.)", ""],
+            ["花", "huā", "flower / to spend", "开花。(Flowers bloom.)", ""],
             ["船", "chuán", "boat", "坐船。(Take a boat.)", ""],
             ["北京", "Běijīng", "Beijing", "去北京。(Go to Beijing.)", ""],
             ["中国", "Zhōngguó", "China", "我是中国人。(I am Chinese.)", ""],
@@ -397,49 +397,32 @@
 
         let currentBatch = 1;
         
-        // Android Audio Fix: Store utterances in a global array to completely prevent 
-        // Chrome's aggressive Garbage Collection from deleting them mid-sentence.
+        // Android Audio Fix: Store utterances in a global array to prevent GC dropouts.
+        // This is the EXACT logic from your original working version.
         window.speechUtterances = [];
-        
-        let audioInitialized = false;
-
-        // Unlock Native Android Audio silently on the very first touch of the screen
-        document.body.addEventListener('touchstart', function() {
-            if (!audioInitialized && 'speechSynthesis' in window) {
-                const silentUtterance = new SpeechSynthesisUtterance('');
-                window.speechSynthesis.speak(silentUtterance);
-                audioInitialized = true;
-            }
-        }, { once: true });
-        
-        document.body.addEventListener('click', function() {
-            if (!audioInitialized && 'speechSynthesis' in window) {
-                const silentUtterance = new SpeechSynthesisUtterance('');
-                window.speechSynthesis.speak(silentUtterance);
-                audioInitialized = true;
-            }
-        }, { once: true });
 
         function playAudio(text) {
-            if (!('speechSynthesis' in window)) return;
+            if (!('speechSynthesis' in window)) {
+                console.warn("Speech Synthesis not supported in this browser.");
+                return;
+            }
             
             window.speechSynthesis.cancel();
             
-            // Clean text (remove English translations in parens entirely)
-            // DO NOT strip Chinese punctuation, as it helps the TTS engine pace the sentence.
+            // Clean text (remove English translations in parens)
             const cleanText = text.replace(/\(.*?\)/g, '').trim();
             
             const utterance = new SpeechSynthesisUtterance(cleanText);
             utterance.lang = 'zh-CN';
             utterance.rate = 0.85; 
             
-            // Push to global array to prevent Android GC dropouts
+            // Push to global array to prevent Garbage Collection deletion mid-sentence
             window.speechUtterances.push(utterance);
             if(window.speechUtterances.length > 20) {
                 window.speechUtterances.shift();
             }
             
-            // 50ms delay perfectly bypasses the Android cancel/speak race condition bug
+            // 50ms timeout prevents Android race conditions when canceling old audio
             setTimeout(() => {
                 window.speechSynthesis.speak(utterance);
             }, 50);
@@ -468,14 +451,13 @@
                 const rowNum = startIndex + index + 1; // True 1-300 ordering
                 const [char, pinyin, meaning, example, grammar] = item;
                 
-                // SAFE SPLIT: Extract Chinese and English without losing words inside parentheses
+                // Extract Chinese and English without losing words inside parentheses
                 let cnText = example;
                 let enText = "";
                 const splitIndex = example.indexOf('(');
                 
                 if(splitIndex !== -1) {
                     cnText = example.substring(0, splitIndex).trim();
-                    // Get everything after the first '(', and safely remove the last ')'
                     enText = example.substring(splitIndex + 1).replace(/\)$/, '').trim();
                 }
 
@@ -501,7 +483,7 @@
                         <div class="text-slate-600 self-start mt-2 grid-item leading-snug">${meaning}</div>
                         
                         <!-- Example Sentence Column -->
-                        <div class="flex flex-col gap-2 self-start grid-item">
+                        <div class="flex flex-col gap-2 self-start grid-item w-full">
                             <div class="flex items-start gap-2">
                                 <span class="font-bold text-slate-800 text-lg leading-snug">${cnText}</span>
                                 <button onclick="playAudio('${cnText}')" class="text-sm bg-slate-200 hover:bg-blue-200 text-slate-700 rounded-full w-8 h-8 flex items-center justify-center shrink-0 shadow-sm transition-transform active:scale-95 mt-0.5" title="Listen">🔊</button>
@@ -555,7 +537,6 @@
 
         // Initialize automatically on load
         window.onload = () => {
-            document.getElementById('mainContent').style.display = 'block';
             initTabs();
             renderBatch();
         };
