@@ -380,10 +380,42 @@
         const vocabContainer = document.getElementById('vocabContainer');
         const tabContainer = document.getElementById('tabContainer');
 
+        // Global array to prevent Android Chrome Garbage Collection bug
+        window.speechUtterances = [];
+
         function playAudio(text) {
-            const u = new SpeechSynthesisUtterance(text);
-            u.lang = 'zh-CN';
-            speechSynthesis.speak(u);
+            if (!('speechSynthesis' in window)) return;
+
+            // Clear any jammed audio queue
+            window.speechSynthesis.cancel();
+
+            // 50ms delay prevents the Android cancel() race condition
+            setTimeout(() => {
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'zh-CN';
+                u.rate = 0.85;
+
+                // Explicitly bind a Chinese voice if the system has one
+                const voices = window.speechSynthesis.getVoices();
+                const zhVoice = voices.find(v => v.lang.includes('zh'));
+                if (zhVoice) u.voice = zhVoice;
+
+                // Store utterance globally to prevent silent cutoffs
+                window.speechUtterances.push(u);
+
+                // Clean up memory after playing
+                u.onend = () => {
+                    const index = window.speechUtterances.indexOf(u);
+                    if (index > -1) window.speechUtterances.splice(index, 1);
+                };
+
+                window.speechSynthesis.speak(u);
+            }, 50);
+        }
+
+        // Pre-load voices for Android to prevent first-click silence
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
         }
 
         function initTabs() {
