@@ -3,22 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HSK Mastery Suite</title>
+    <!-- CRITICAL FIX: This meta tag prevents Google from blocking the audio when hosted on GitHub Pages -->
+    <meta name="referrer" content="no-referrer">
+    <title>HSK 3.1 Level 1 Mastery</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .table-grid { 
-            /* 5-column layout. 160px reserved for Number + Characters + Audio to prevent any stacking */
+            /* 5-column layout. 140px reserved for Number + Characters + Audio to prevent any stacking */
             display: grid; 
-            grid-template-columns: 160px 100px 120px 1.5fr 1fr; 
+            grid-template-columns: 140px 80px 100px 1.5fr 1fr; 
             gap: 1.5rem; 
             align-items: start;
         }
-        @media (max-width: 1024px) {
-            .table-grid {
-                grid-template-columns: 160px 100px 120px 1fr;
-            }
-            .grammar-col { grid-column: 1 / -1; margin-top: 0.5rem; }
-        }
+        /* Only drop to a single column on actual mobile phones (under 768px), keep 5 columns on tablets */
         @media (max-width: 768px) {
             .table-grid { 
                 grid-template-columns: 1fr; 
@@ -27,7 +24,6 @@
                 padding: 1.5rem 1rem; 
             }
             .header-row { display: none; }
-            .grammar-col { grid-column: auto; }
         }
     </style>
 </head>
@@ -384,6 +380,7 @@
         const vocabContainer = document.getElementById('vocabContainer');
         const tabContainer = document.getElementById('tabContainer');
 
+        // EXACT Original Audio Code - the meta tag in the <head> makes this work on GitHub Pages!
         function playAudio(text) {
             const audio = new Audio(`https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=zh-CN&client=tw-ob`);
             audio.play().catch(err => console.log("Audio play error:", err));
@@ -417,9 +414,9 @@
                 vocabContainer.innerHTML += `
                     <div class="p-4 table-grid border-b border-slate-100 hover:bg-slate-50 transition-colors">
                         
-                        <div class="font-bold text-2xl text-slate-800 flex items-center gap-2">
-                            <span class="text-slate-400 font-mono text-base mr-1">#${rowNum}</span>
-                            ${char}
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-400 font-mono text-sm">#${rowNum}</span>
+                            <span class="text-3xl font-bold text-slate-800">${char}</span>
                             <button onclick="playAudio('${char}')" class="text-lg hover:scale-110 active:scale-90 transition-transform cursor-pointer" title="Listen">🔊</button>
                         </div>
                         
