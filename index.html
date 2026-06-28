@@ -3,21 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HSK Mastery Suite</title>
+    <title>HSK 3.1 Level 1 Mastery</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* 6-Column Grid for Desktop */
         .table-grid { 
             display: grid; 
-            grid-template-columns: 50px 90px 100px 120px 1fr; 
+            grid-template-columns: 50px 80px 90px 100px 2fr 1.5fr; 
             gap: 1rem; 
-            align-items: start;
+            align-items: center;
         }
+        @media (max-width: 1024px) {
+            .table-grid { 
+                grid-template-columns: 40px 70px 80px 90px 1.5fr 1fr; 
+            }
+        }
+        /* Mobile Stacking */
         @media (max-width: 768px) {
             .table-grid { 
                 grid-template-columns: 1fr; 
                 gap: 0.5rem; 
                 border-bottom: 2px solid #e5e7eb; 
                 padding: 1.5rem 1rem; 
+                align-items: start;
             }
             .header-row { display: none; }
             .mobile-num { display: inline-block; font-weight: bold; color: #94a3b8; margin-right: 8px; }
@@ -29,8 +37,11 @@
 </head>
 <body class="bg-slate-50 text-slate-800">
 
+    <!-- Single Master Audio Element to bypass Android Media Limits -->
+    <audio id="masterAudio" style="display: none;"></audio>
+
     <!-- Main Dashboard -->
-    <div class="max-w-6xl mx-auto p-4 md:p-8" id="mainContent">
+    <div class="max-w-7xl mx-auto p-4 md:p-8" id="mainContent">
         <header class="mb-8 text-center">
             <h1 class="text-3xl font-bold text-blue-900 mb-2">HSK 3.1 Level 1 Mastery</h1>
             <p class="text-slate-600">300 Words • Frequency Ordered • Cumulative Tests</p>
@@ -39,12 +50,14 @@
         <div class="flex flex-wrap justify-center gap-2 mb-8" id="tabContainer"></div>
 
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-12">
+            <!-- 6 Column Header -->
             <div class="bg-slate-100 p-4 table-grid header-row font-bold text-slate-700 border-b">
                 <div class="text-slate-400">No.</div>
                 <div>Char</div>
                 <div>Pinyin</div>
                 <div>Meaning</div>
-                <div>Example & Grammar</div>
+                <div>Example Sentence</div>
+                <div>Grammar Note</div>
             </div>
             <div id="vocabContainer" class="divide-y divide-slate-100"></div>
         </div>
@@ -57,12 +70,12 @@
 
     <script>
         const rawDB = [
-            // BATCH 1 (1-50)
-            ["我", "wǒ", "I / me", "我是学生。(I am a student.)", "Pronoun: Acts as subject or object without morphological changes."],
+            // BATCH 1 (1-50): Core Pronouns, Particles, Copulas
+            ["我", "wǒ", "I / me", "我是学生。(I am a student.)", "Pronoun: Acts as subject or object."],
             ["你", "nǐ", "you", "你好。(Hello.)", ""],
             ["他", "tā", "he / him", "他是老师。(He is a teacher.)", ""],
             ["她", "tā", "she / her", "她是医生。(She is a doctor.)", ""],
-            ["我们", "wǒmen", "we / us", "我们去学校。(We go to school.)", "Grammar: Plural suffix '们' (men) is used for personal pronouns."],
+            ["我们", "wǒmen", "we / us", "我们去学校。(We go to school.)", "Suffix '们' (men) indicates plural."],
             ["这", "zhè", "this", "这是什么？(What is this?)", ""],
             ["那", "nà", "that", "那是我的书。(That is my book.)", ""],
             ["哪", "nǎ", "which", "你是哪国人？(Which country are you from?)", ""],
@@ -70,23 +83,23 @@
             ["什么", "shénme", "what", "这是什么？(What is this?)", ""],
             ["怎么", "zěnme", "how", "怎么去？(How to go?)", ""],
             ["怎么样", "zěnmeyàng", "how about", "天气怎么样？(How is the weather?)", ""],
-            ["多少", "duōshao", "how many/much", "多少钱？(How much money?)", "Question word: Used for amounts generally greater than 10."],
-            ["几", "jǐ", "how many", "几个人？(How many people?)", "Question word: Used for small numbers (usually under 10)."],
-            ["吗", "ma", "question particle", "你好吗？(How are you?)", "Particle: Added to the end of a statement to form a yes/no question."],
-            ["呢", "ne", "question particle", "你呢？(And you?)", "Particle: Used for reciprocal questions or asking 'where is...'."],
-            ["的", "de", "possessive particle", "我的书。(My book.)", "Particle: Links a possessor to the possessed object."],
-            ["了", "le", "particle", "下雨了。(It started raining.)", "Particle: Indicates a completed action or a change of state."],
-            ["在", "zài", "at / in / on", "他在家。(He is at home.)", "Preposition/Verb: Indicates location or an ongoing action."],
-            ["是", "shì", "is / am / are", "我是中国人。(I am Chinese.)", "Copula: Links noun to noun. Cannot link noun to adjective."],
-            ["有", "yǒu", "have / there is", "我有一个苹果。(I have an apple.)", "Verb: Denotes possession or existence. Negated exclusively by '没'."],
-            ["不", "bù", "not / no", "我不去。(I am not going.)", "Adverb: Negates actions in the present or future."],
-            ["没", "méi", "not have / didn't", "我没有钱。(I have no money.)", "Adverb: Negates past actions or the verb '有' (have)."],
-            ["很", "hěn", "very", "很好。(Very good.)", "Adverb: Often placed before adjectives just to link them."],
+            ["多少", "duōshao", "how many/much", "多少钱？(How much money?)", "Question word: For amounts > 10."],
+            ["几", "jǐ", "how many", "几个人？(How many people?)", "Question word: For amounts < 10."],
+            ["吗", "ma", "question particle", "你好吗？(How are you?)", "Particle: Forms yes/no questions."],
+            ["呢", "ne", "question particle", "你呢？(And you?)", "Particle: For reciprocal questions."],
+            ["的", "de", "possessive particle", "我的书。(My book.)", "Particle: Links possessor to object."],
+            ["了", "le", "particle", "下雨了。(It started raining.)", "Particle: Indicates change of state."],
+            ["在", "zài", "at / in / on", "他在家。(He is at home.)", "Indicates location or ongoing action."],
+            ["是", "shì", "is / am / are", "我是中国人。(I am Chinese.)", "Copula: Links noun to noun."],
+            ["有", "yǒu", "have / there is", "我有一个苹果。(I have an apple.)", "Verb: Negated exclusively by '没'."],
+            ["不", "bù", "not / no", "我不去。(I am not going.)", "Adverb: Negates present/future actions."],
+            ["没", "méi", "not have / didn't", "我没有钱。(I have no money.)", "Adverb: Negates past actions or '有'."],
+            ["很", "hěn", "very", "很好。(Very good.)", "Adverb: Links noun to adjective."],
             ["太", "tài", "too (much)", "太好了！(That's great!)", ""],
-            ["都", "dōu", "all / both", "我们都去。(We all go.)", "Adverb: Placed before the verb to summarize multiple subjects."],
+            ["都", "dōu", "all / both", "我们都去。(We all go.)", "Adverb: Summarizes multiple subjects."],
             ["也", "yě", "also", "我也去。(I also go.)", ""],
-            ["和", "hé", "and", "我和你。(You and I.)", "Conjunction: Only connects nouns or noun phrases, NEVER sentences."],
-            ["个", "gè", "measure word", "一个人。(One person.)", "Classifier: The most common, universal measure word."],
+            ["和", "hé", "and", "我和你。(You and I.)", "Conjunction: Connects nouns only."],
+            ["个", "gè", "measure word", "一个人。(One person.)", "Classifier: Universal measure word."],
             ["去", "qù", "go", "去学校。(Go to school.)", ""],
             ["来", "lái", "come", "他来了。(He came.)", ""],
             ["做", "zuò", "do / make", "做饭。(Cook food.)", ""],
@@ -99,19 +112,19 @@
             ["写", "xiě", "write", "写字。(Write characters.)", ""],
             ["买", "mǎi", "buy", "买东西。(Buy things.)", ""],
             ["卖", "mài", "sell", "卖水果。(Sell fruit.)", ""],
-            ["想", "xiǎng", "think / want to", "我想回家。(I want to go home.)", "Auxiliary: Indicates a desire or plan to do something."],
-            ["要", "yào", "want / must", "我要这个。(I want this.)", "Verb/Auxiliary: Stronger than 想. Means 'want' or 'need to'."],
-            ["会", "huì", "can / know how", "我会说汉语。(I can speak Chinese.)", "Auxiliary: Indicates a learned skill or future possibility."],
-            ["能", "néng", "can / be able", "你能来吗？(Can you come?)", "Auxiliary: Indicates physical ability or circumstantial possibility."],
+            ["想", "xiǎng", "think / want to", "我想回家。(I want to go home.)", "Auxiliary: Indicates a desire."],
+            ["要", "yào", "want / must", "我要这个。(I want this.)", "Stronger than 想. Means 'must/need'."],
+            ["会", "huì", "can / know how", "我会说汉语。(I can speak Chinese.)", "Auxiliary: A learned skill."],
+            ["能", "néng", "can / be able", "你能来吗？(Can you come?)", "Auxiliary: Physical ability."],
             ["可以", "kěyǐ", "can / may", "可以吗？(Is it allowed?)", "Auxiliary: Indicates permission."],
             ["叫", "jiào", "to be called", "我叫大卫。(My name is David.)", ""],
             ["认识", "rènshi", "to know (a person)", "认识你很高兴。(Nice to meet you.)", ""],
             ["知道", "zhīdào", "to know (a fact)", "我不知道。(I don't know.)", ""],
             ["觉得", "juéde", "to feel / think", "我觉得很好。(I think it's good.)", ""],
 
-            // BATCH 2 (51-100)
+            // BATCH 2 (51-100): Numbers, Time
             ["一", "yī", "one", "一个人。(One person.)", ""],
-            ["二", "èr", "two", "二月。(February.)", "Number: Used for counting and ordinal numbers. Do not use with measure words."],
+            ["二", "èr", "two", "二月。(February.)", "Do not use with measure words."],
             ["三", "sān", "three", "三天。(Three days.)", ""],
             ["四", "sì", "four", "四个月。(Four months.)", ""],
             ["五", "wǔ", "five", "五本书。(Five books.)", ""],
@@ -127,7 +140,7 @@
             ["分钟", "fēnzhōng", "minute", "十分钟。(Ten minutes.)", ""],
             ["小时", "xiǎoshí", "hour", "一个小时。(One hour.)", ""],
             ["天", "tiān", "day / sky", "三天。(Three days.)", ""],
-            ["今天", "jīntiān", "today", "今天很热。(Today is hot.)", "Time noun: Often placed at the very beginning of the sentence or after the subject."],
+            ["今天", "jīntiān", "today", "今天很热。(Today is hot.)", "Placed at the start of the sentence."],
             ["明天", "míngtiān", "tomorrow", "明天见。(See you tomorrow.)", ""],
             ["昨天", "zuótiān", "yesterday", "昨天很冷。(Yesterday was cold.)", ""],
             ["早上", "zǎoshang", "early morning", "早上好。(Good morning.)", ""],
@@ -147,8 +160,8 @@
             ["岁", "suì", "years old", "我十岁。(I am ten years old.)", ""],
             ["钱", "qián", "money", "多少钱？(How much money?)", ""],
             ["块", "kuài", "yuan (money)", "十块钱。(Ten yuan.)", ""],
-            ["半", "bàn", "half", "一半。(Half.)", "Number: Used to indicate half of an hour, half of a unit, etc."],
-            ["两", "liǎng", "two (with measure word)", "两个人。(Two people.)", "Number: Must be used instead of '二' when followed by a measure word."],
+            ["半", "bàn", "half", "一半。(Half.)", "Indicates half of a unit."],
+            ["两", "liǎng", "two (with measure word)", "两个人。(Two people.)", "Must be used with a measure word."],
             ["第一", "dì-yī", "first", "第一名。(First place.)", ""],
             ["次", "cì", "time (frequency)", "去过一次。(Have gone once.)", ""],
             ["每", "měi", "every", "每天。(Every day.)", ""],
@@ -161,7 +174,7 @@
             ["女", "nǚ", "female", "女人。(Woman.)", ""],
             ["先生", "xiānsheng", "Mr. / gentleman", "王先生。(Mr. Wang.)", ""],
 
-            // BATCH 3 (101-150)
+            // BATCH 3 (101-150): Family, Occupations, Objects
             ["小姐", "xiǎojiě", "Miss", "李小姐。(Miss Li.)", ""],
             ["名字", "míngzi", "name", "你叫什么名字？(What is your name?)", ""],
             ["老师", "lǎoshī", "teacher", "老师好。(Hello teacher.)", ""],
@@ -213,7 +226,7 @@
             ["菜", "cài", "dish / vegetable", "中国菜。(Chinese food.)", ""],
             ["米饭", "mǐfàn", "cooked rice", "吃米饭。(Eat rice.)", ""],
 
-            // BATCH 4 (151-200)
+            // BATCH 4 (151-200): Food, States, Adjectives
             ["水果", "shuǐguǒ", "fruit", "买水果。(Buy fruit.)", ""],
             ["苹果", "píngguǒ", "apple", "吃苹果。(Eat an apple.)", ""],
             ["西瓜", "xīguā", "watermelon", "吃西瓜。(Eat watermelon.)", ""],
@@ -255,25 +268,25 @@
             ["真", "zhēn", "really", "真漂亮。(Really pretty.)", ""],
             ["非常", "fēicháng", "extremely", "非常好。(Extremely good.)", ""],
             ["最", "zuì", "most", "最好。(The best.)", ""],
-            ["就", "jiù", "then / exactly", "我就来。(I will come right away.)", "Adverb: Indicates immediacy or confirms a fact."],
+            ["就", "jiù", "then / exactly", "我就来。(I will come right away.)", "Indicates immediacy."],
             ["还", "hái", "still / also", "还有谁？(Who else?)", ""],
-            ["再", "zài", "again", "再说一次。(Say it again.)", "Adverb: Indicates an action to be repeated in the future."],
+            ["再", "zài", "again", "再说一次。(Say it again.)", "Action repeated in the future."],
             ["已经", "yǐjīng", "already", "已经走了。(Already left.)", ""],
             ["正在", "zhèngzài", "in the process of", "正在吃饭。(Currently eating.)", ""],
-            ["别", "bié", "don't", "别走。(Don't leave.)", "Adverb: Used for imperative sentences telling someone not to do something."],
+            ["别", "bié", "don't", "别走。(Don't leave.)", "Used for imperative sentences."],
             ["一起", "yìqǐ", "together", "一起去。(Go together.)", ""],
             ["为什么", "wèishénme", "why", "为什么不去？(Why not go?)", ""],
-            ["因为", "yīnwèi", "because", "因为下雨。(Because it is raining.)", "Conjunction: Used with 所以 (so) to show cause and effect."],
+            ["因为", "yīnwèi", "because", "因为下雨。(Because it is raining.)", "Used with 所以 to show cause/effect."],
 
-            // BATCH 5 (201-250)
+            // BATCH 5 (201-250): Conjunctions, Directions, Verbs
             ["所以", "suǒyǐ", "so", "所以我没去。(So I didn't go.)", ""],
             ["但是", "dànshì", "but", "但是我不去。(But I am not going.)", ""],
-            ["虽然", "suīrán", "although", "虽然下雨。(Although it is raining.)", "Conjunction: Used with 但是 (but) to show concession."],
+            ["虽然", "suīrán", "although", "虽然下雨。(Although it is raining.)", "Used with 但是 to show concession."],
             ["如果", "rúguǒ", "if", "如果下雨。(If it rains.)", ""],
             ["从", "cóng", "from", "从这儿走。(Walk from here.)", ""],
-            ["离", "lí", "away from", "离这很远。(Far from here.)", "Preposition: Used to express distance between A and B."],
+            ["离", "lí", "away from", "离这很远。(Far from here.)", "Expresses distance between A and B."],
             ["向", "xiàng", "towards", "向前走。(Walk forward.)", ""],
-            ["比", "bǐ", "compare", "他比我高。(He is taller than me.)", "Preposition: Used for comparison (A + 比 + B + Adjective)."],
+            ["比", "bǐ", "compare", "他比我高。(He is taller than me.)", "Comparison (A + 比 + B + Adj)."],
             ["里", "lǐ", "inside", "在水里。(In the water.)", ""],
             ["外", "wài", "outside", "在外面。(Outside.)", ""],
             ["上", "shàng", "up / above", "在桌子上。(On the table.)", ""],
@@ -283,10 +296,10 @@
             ["左边", "zuǒbian", "left side", "在左边。(On the left.)", ""],
             ["右边", "yòubian", "right side", "在右边。(On the right.)", ""],
             ["旁边", "pángbiān", "beside", "在我旁边。(Beside me.)", ""],
-            ["吧", "ba", "suggestion particle", "走吧。(Let's go.)", "Particle: Softens the tone of a command or suggestion."],
-            ["得", "de", "degree particle", "跑得快。(Run fast.)", "Particle: Connects a verb to an adjective describing how the action is done."],
-            ["着", "zhe", "continuous particle", "开着门。(The door is open.)", "Particle: Indicates a continuous state resulting from an action."],
-            ["过", "guo", "experience particle", "我去过。(I have been there.)", "Particle: Indicates a past experience."],
+            ["吧", "ba", "suggestion particle", "走吧。(Let's go.)", "Softens a command or suggestion."],
+            ["得", "de", "degree particle", "跑得快。(Run fast.)", "Connects a verb to an adjective."],
+            ["着", "zhe", "continuous particle", "开着门。(The door is open.)", "Indicates a continuous state."],
+            ["过", "guo", "experience particle", "我去过。(I have been there.)", "Indicates a past experience."],
             ["喜欢", "xǐhuan", "like", "我喜欢你。(I like you.)", ""],
             ["爱", "ài", "love", "我爱你。(I love you.)", ""],
             ["谢谢", "xièxie", "thank you", "谢谢你。(Thank you.)", ""],
@@ -315,7 +328,7 @@
             ["回答", "huídá", "answer", "回答问题。(Answer question.)", ""],
             ["找", "zhǎo", "look for", "找朋友。(Look for friend.)", ""],
             ["等", "děng", "wait", "等一下。(Wait a moment.)", ""],
-            ["给", "gěi", "give", "给你。(Give to you.)", "Preposition/Verb: Can also act as 'for' (打电话给我 = call me)."],
+            ["给", "gěi", "give", "给你。(Give to you.)", "Can also act as 'for'."],
 
             // BATCH 6 (251-300)
             ["让", "ràng", "let / make", "让他去。(Let him go.)", ""],
@@ -338,7 +351,7 @@
             ["课", "kè", "lesson / class", "上课。(Attend class.)", ""],
             ["汉语", "Hànyǔ", "Chinese language", "学习汉语。(Study Chinese.)", ""],
             ["字", "zì", "character", "写字。(Write characters.)", ""],
-            ["看见", "kànjiàn", "see", "我看见他了。(I saw him.)", "Verb + Complement: '见' acts as the resultative complement to '看'."],
+            ["看见", "kànjiàn", "see", "我看见他了。(I saw him.)", "Verb+Complement: 见 is the result."],
             ["出", "chū", "go out", "出去。(Go out.)", ""],
             ["进", "jìn", "enter", "请进。(Please come in.)", ""],
             ["回", "huí", "return", "回家。(Go home.)", ""],
@@ -346,7 +359,7 @@
             ["雪", "xuě", "snow", "下雪了。(It is snowing.)", ""],
             ["天气", "tiānqì", "weather", "天气很好。(The weather is good.)", ""],
             ["打电话", "dǎ diànhuà", "make a phone call", "他在打电话。(He is making a call.)", ""],
-            ["帮忙", "bāngmáng", "to help", "请帮个忙。(Please do me a favor.)", "Verb-Object structure: Unlike 帮助, you cannot put an object directly after it."],
+            ["帮忙", "bāngmáng", "to help", "请帮个忙。(Please do me a favor.)", "Cannot put an object directly after it."],
             ["希望", "xīwàng", "hope", "我希望你能来。(I hope you can come.)", ""],
             ["玩", "wán", "play", "出去玩。(Go out to play.)", ""],
             ["送", "sòng", "deliver / give as gift", "送给你。(Give to you as a gift.)", ""],
@@ -376,39 +389,38 @@
         }
 
         let currentBatch = 1;
-        // Global utterance reference to prevent Chrome garbage collection bug
-        let globalUtterance = null; 
+        
+        // Single master audio element to bypass Android Media Element creation limits
+        const masterAudio = document.getElementById('masterAudio');
+
+        function playAudio(text) {
+            if (!text) return;
+            
+            // Remove parentheticals, keep Chinese punctuation for accurate TTS pausing
+            const cleanText = text.replace(/\(.*?\)/g, '').trim();
+            
+            // Primary Engine: Google TTS directly via Audio tag (Bypasses CORS if used as src)
+            const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(cleanText)}&tl=zh-CN&client=tw-ob`;
+            
+            masterAudio.src = url;
+            
+            // Synchronous play ensures the User Gesture token isn't dropped by Android
+            masterAudio.play().catch(err => {
+                console.warn("Audio element blocked, falling back to Native SpeechSynthesis:", err);
+                
+                // Fallback Engine: Native Speech Synthesis
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(cleanText);
+                    utterance.lang = 'zh-CN';
+                    utterance.rate = 0.9;
+                    window.speechSynthesis.speak(utterance);
+                }
+            });
+        }
 
         const vocabContainer = document.getElementById('vocabContainer');
         const tabContainer = document.getElementById('tabContainer');
-
-        function playAudio(text) {
-            // Carefully clean text: remove parentheses, but KEEP Chinese punctuation 
-            // otherwise the Google TTS engine might return an error for trailing spaces without end marks.
-            const cleanText = text.replace(/\(.*?\)/g, '').trim();
-            if (!cleanText) return;
-
-            if ('speechSynthesis' in window) {
-                // Cancel any currently playing speech to prevent overlap
-                window.speechSynthesis.cancel();
-                
-                // Android Race Condition Fix: We use a slight delay so the 'cancel' 
-                // fully processes before we assign a new utterance.
-                setTimeout(() => {
-                    globalUtterance = new SpeechSynthesisUtterance(cleanText);
-                    globalUtterance.lang = 'zh-CN';
-                    globalUtterance.rate = 0.9;
-                    
-                    globalUtterance.onerror = function(e) {
-                        console.warn("SpeechSynthesis failed, likely a rate limit or engine crash:", e.error);
-                    };
-                    
-                    window.speechSynthesis.speak(globalUtterance);
-                }, 50);
-            } else {
-                console.warn("SpeechSynthesis API not found on this device.");
-            }
-        }
 
         function initTabs() {
             tabContainer.innerHTML = '';
@@ -430,47 +442,45 @@
                 const rowNum = startIndex + index + 1;
                 const [char, pinyin, meaning, example, grammar] = item;
                 
+                // Parse example text for Tap-to-Reveal
                 const exParts = example.split('(');
                 const cnText = exParts[0].trim();
                 const enText = exParts[1] ? exParts[1].replace(')', '') : '';
 
-                // Create a 6th dedicated column layout for Grammar
-                const grammarHtml = grammar ? 
-                    `<div class="p-2 bg-purple-50 text-purple-800 text-xs rounded border border-purple-100 flex items-start gap-1">
-                        <span title="Grammar Note">💡</span> <span>${grammar}</span>
-                     </div>` : '<div class="text-slate-300 text-xs italic">-</div>';
+                // Grammar Column Logic
+                const grammarHtml = grammar 
+                    ? `<div class="text-xs text-purple-700 bg-purple-50 p-2 rounded border border-purple-100 flex items-start gap-1"><span title="Grammar Note">💡</span> <span>${grammar}</span></div>`
+                    : `<div class="text-slate-300 text-sm italic text-center md:text-left">-</div>`;
 
                 vocabContainer.innerHTML += `
-                    <div class="p-4 table-grid border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                        <div class="text-slate-400 font-mono text-sm self-center">#${rowNum}</div>
+                    <div class="p-4 table-grid border-b border-slate-100 hover:bg-slate-50 transition-colors items-center">
+                        <div class="text-slate-400 font-mono text-sm">#${rowNum}</div>
                         <div class="font-bold text-2xl text-slate-800 flex items-center gap-2">
                             <span class="mobile-num">#${rowNum}</span>
                             ${char}
                             <button onclick="playAudio('${char}')" class="text-lg hover:scale-110 active:scale-90 transition-transform cursor-pointer" title="Listen">🔊</button>
                         </div>
-                        <div class="text-blue-600 text-lg self-center font-medium">${pinyin}</div>
-                        <div class="text-slate-600 self-center">${meaning}</div>
-                        
-                        <div class="flex flex-col justify-center border-l-2 border-slate-100 pl-4">
+                        <div class="text-blue-600 text-lg font-medium">${pinyin}</div>
+                        <div class="text-slate-600">${meaning}</div>
+                        <div class="flex flex-col justify-center">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="font-bold text-slate-800">${cnText}</span>
-                                <button onclick="playAudio('${cnText}')" class="text-base hover:scale-110 active:scale-90 transition-transform cursor-pointer bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center" title="Listen">🔊</button>
+                                <button onclick="playAudio('${cnText}')" class="text-sm bg-slate-200 rounded-full w-7 h-7 flex items-center justify-center hover:scale-110 active:scale-90 transition-transform cursor-pointer" title="Listen">🔊</button>
                             </div>
                             
                             ${enText ? `
-                            <div class="w-full">
-                                <div onclick="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden')" class="w-full text-center cursor-pointer bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs px-3 py-1.5 rounded transition-colors font-medium">
+                            <div>
+                                <div onclick="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden')" class="inline-block cursor-pointer bg-slate-200 hover:bg-slate-300 text-slate-600 text-xs px-3 py-1 rounded transition-colors">
                                     👁️ Tap to reveal translation
                                 </div>
-                                <div class="hidden cursor-pointer bg-blue-50 text-blue-900 text-sm px-3 py-2 rounded border border-blue-100 transition-opacity flex flex-col gap-1" onclick="this.classList.add('hidden'); this.previousElementSibling.classList.remove('hidden')">
-                                    <span class="font-medium text-blue-700 border-b border-blue-200 pb-1">${enText}</span>
+                                <div class="hidden cursor-pointer bg-blue-50 text-blue-900 text-sm px-3 py-2 rounded border border-blue-100 transition-opacity" onclick="this.classList.add('hidden'); this.previousElementSibling.classList.remove('hidden')">
+                                    <span class="text-blue-600 font-semibold mr-2">[${pinyin}]</span>${enText}
                                 </div>
                             </div>
                             ` : ''}
-                            
-                            <div class="mt-2">
-                                ${grammarHtml}
-                            </div>
+                        </div>
+                        <div class="mt-2 md:mt-0">
+                            ${grammarHtml}
                         </div>
                     </div>
                 `;
@@ -504,6 +514,7 @@
             container.innerHTML = html;
         }
 
+        // Initialize App
         window.onload = () => {
             initTabs();
             renderBatch();
